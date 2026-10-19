@@ -1,0 +1,9 @@
+{
+  "_source": "SIMULATED - fictional transit times in minutes (walk + shuttle). Not the real WVU schedule.",
+  "campuses": ["Downtown", "Evansdale", "Health Sciences"],
+  "minutes": {
+    "Downtown": {"Downtown": 5, "Evansdale": 25, "Health Sciences": 20},
+    "Evansdale": {"Downtown": 25, "Evansdale": 5, "Health Sciences": 30},
+    "Health Sciences": {"Downtown": 20, "Evansdale": 30, "Health Sciences": 5}
+  }
+}

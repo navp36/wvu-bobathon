@@ -1,0 +1,24 @@
+{
+  "name": "wvu-campus-mcp",
+  "version": "0.1.0",
+  "description": "Synthetic WVU campus data for the Bobathon lab. All data is simulated.",
+  "type": "module",
+  "scripts": {
+    "build": "tsc"
+  },
+  "bin": {
+    "wvu-campus-mcp": "./build/index.js"
+  },
+  "files": [
+    "build",
+    "data"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/server": "^2.3.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "typescript": "^7.0.2"
+  }
+}

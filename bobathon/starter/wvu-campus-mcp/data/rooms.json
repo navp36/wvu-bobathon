@@ -1,0 +1,11 @@
+{
+  "_source": "SIMULATED - fictional room inventory and bookings. Not real WVU data.",
+  "rooms": [
+    {"id":"EV-LIB-12","campus":"Evansdale","capacity":6,"type":"study","features":["whiteboard","outlets"],"busy":{"M":[["09:00","11:00"],["13:00","15:00"]],"T":[["10:00","12:00"]],"W":[["09:00","11:00"]],"R":[["14:00","16:00"]],"F":[]}},
+    {"id":"EV-LIB-14","campus":"Evansdale","capacity":4,"type":"study","features":["outlets","quiet"],"busy":{"M":[],"T":[["09:00","17:00"]],"W":[["12:00","14:00"]],"R":[],"F":[["10:00","12:00"]]}},
+    {"id":"EV-LAB-2","campus":"Evansdale","capacity":20,"type":"computer-lab","features":["workstations","outlets"],"busy":{"M":[["10:00","12:00"]],"T":[],"W":[["10:00","12:00"]],"R":[["10:00","12:00"]],"F":[]}},
+    {"id":"DT-STU-3","campus":"Downtown","capacity":8,"type":"study","features":["whiteboard","outlets"],"busy":{"M":[["12:00","16:00"]],"T":[["10:00","12:00"]],"W":[["12:00","16:00"]],"R":[],"F":[["09:00","12:00"]]}},
+    {"id":"DT-QUIET-1","campus":"Downtown","capacity":2,"type":"study","features":["quiet"],"busy":{"M":[],"T":[],"W":[],"R":[["13:00","17:00"]],"F":[]}},
+    {"id":"HS-STU-1","campus":"Health Sciences","capacity":10,"type":"study","features":["whiteboard","outlets","quiet"],"busy":{"M":[["08:00","12:00"]],"T":[["13:00","15:00"]],"W":[],"R":[["09:00","11:00"]],"F":[["13:00","16:00"]]}}
+  ]
+}

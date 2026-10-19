@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Class Registration · WVU Bobathon (reference build)</title>
+<style>
+    :root {
+      --accent: #002855;
+      --accent-rgb: 0,40,85;
+      --accent-secondary: #b07f00;
+      --accent-tint: #e6ecf5;
+      --accent-border: #c3d0e3;
+      --accent-border-hover: #9fb3d1;
+      --gold: #eaaa00;
+      --bad: #b42318;
+      --good: #1a7f37;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, "Segoe UI", system-ui, sans-serif; font-size: 15px; line-height: 1.6; color: #1f2328; background: #fff; }
+    a { color: var(--accent); }
+    .page-wrap { max-width: 1080px; margin: 0 auto; padding: 0 40px; }
+    .header { border-bottom: 1px solid #e5e7eb; padding: 16px 0; position: sticky; top: 0; background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); z-index: 100; }
+    .header-inner { max-width: 1080px; margin: 0 auto; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; }
+    .brand { font-weight: 600; color: var(--accent); letter-spacing: 0.02em; }
+    .brand span { color: var(--gold); }
+    .badge { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; border: 1px solid; }
+    .badge.sim { color: var(--accent-secondary); border-color: var(--gold); background: #fff8e1; }
+    .hero { padding: 40px 0 16px; }
+    .hero-eyebrow { font-size: 13px; color: var(--accent); font-weight: 500; margin-bottom: 8px; }
+    .hero h1 { font-size: 44px; font-weight: 300; line-height: 1.1; margin-bottom: 12px; }
+    .hero p { color: #57606a; max-width: 700px; }
+    .section-title { font-size: 14px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.04em; margin: 36px 0 14px; }
+    .grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 28px; align-items: start; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } .page-wrap, .header-inner { padding: 0 20px; } .hero h1 { font-size: 34px; } }
+    .panel { border: 1px solid #e5e7eb; border-radius: 6px; background: #f7f8fa; padding: 20px; }
+    .controls { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; align-items: center; }
+    input[type=search], select { font: inherit; font-size: 14px; padding: 7px 10px; border: 1px solid #c9ced6; border-radius: 4px; background: #fff; }
+    input[type=search] { flex: 1; min-width: 160px; }
+    label.chk { font-size: 13px; color: #57606a; display: inline-flex; gap: 6px; align-items: center; }
+    :focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+    .done-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .done-chips label { font-size: 13px; border: 1px solid var(--accent-border); background: #fff; border-radius: 999px; padding: 3px 12px; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+    .done-chips label:has(input:checked) { background: var(--accent-tint); border-color: var(--accent); }
+    .course { border-bottom: 1px solid #e5e7eb; padding: 12px 0; }
+    .course:last-child { border-bottom: none; }
+    .course h3 { font-size: 15px; font-weight: 600; }
+    .course .prq { font-size: 12px; color: #57606a; }
+    .sec { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 6px 0 0 0; font-size: 13px; color: #1f2328; }
+    .sec .meta { color: #57606a; }
+    .seats { font-weight: 600; }
+    .seats.low { color: var(--bad); }
+    button { font: inherit; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--accent); background: #fff; border: 1px solid var(--accent); border-radius: 4px; padding: 5px 14px; transition: background .15s, color .15s; }
+    button:hover:not(:disabled) { background: var(--accent); color: #fff; }
+    button:disabled { color: #8c959f; border-color: #d0d7de; cursor: not-allowed; background: #f0f1f3; }
+    button.ghost { border-color: #c9ced6; color: #57606a; }
+    .status { border-radius: 6px; padding: 12px 14px; font-size: 14px; margin-bottom: 14px; border: 1px solid; }
+    .status.ok { background: #e9f7ee; border-color: #a6d8b6; color: #14532d; }
+    .status.warn { background: #fdecea; border-color: #f1b3ad; color: #7a1b13; }
+    .status.idle { background: #fff; border-color: #e5e7eb; color: #57606a; }
+    .status ul { margin: 6px 0 0 18px; }
+    .picked { list-style: none; margin-bottom: 14px; }
+    .picked li { display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 6px 0; border-bottom: 1px solid #e5e7eb; font-size: 14px; }
+    table.week { width: 100%; border-collapse: collapse; font-size: 12px; background: #fff; }
+    table.week th, table.week td { border: 1px solid #e5e7eb; padding: 4px 6px; text-align: center; height: 28px; }
+    table.week th { background: var(--accent-tint); color: var(--accent); font-weight: 600; }
+    table.week td.hr { color: #8c959f; width: 54px; }
+    table.week td.on { background: var(--accent); color: #fff; font-weight: 600; }
+    table.week td.on.c-Evansdale { background: #002855; }
+    table.week td.on.c-Downtown { background: #7a5c00; }
+    table.week td.on.c-Health { background: #0b6e4f; }
+    .legend { font-size: 12px; color: #57606a; margin-top: 8px; }
+    .sources { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .sources th, .sources td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #e5e7eb; vertical-align: top; }
+    .sources th { color: var(--accent); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+    .privacy { border-left: 4px solid var(--gold); background: #fffdf5; padding: 14px 18px; font-size: 14px; border-radius: 0 6px 6px 0; }
+    .privacy ul { margin: 6px 0 0 18px; }
+    footer { border-top: 1px solid #e5e7eb; padding: 20px 0; text-align: center; font-size: 12px; color: #8c959f; margin-top: 48px; }
+    .empty { color: #57606a; font-size: 14px; padding: 18px 0; }
+    .sr { position: absolute; left: -9999px; }
+  </style>
+</head>
+<body>
+<header class="header">
+  <div class="header-inner">
+    <div class="brand">WVU <span>●</span> Bobathon</div>
+    <span class="badge sim">Simulated data</span>
+  </div>
+</header>
+
+<div class="page-wrap">
+  <section class="hero">
+    <p class="hero-eyebrow">Reference build · produced with IBM Bob</p>
+    <h1>Smart Class Registration</h1>
+    <p>Pick sections and see instantly whether they fit together: prerequisites, time overlaps, and whether you can physically get from Evansdale to Downtown in the time between classes.</p>
+  </section>
+
+  <h2 class="section-title">1 · What have you already completed?</h2>
+  <div class="done-chips" id="done" role="group" aria-label="Completed courses"></div>
+
+  <div class="grid">
+    <section aria-labelledby="catalog-h">
+      <h2 class="section-title" id="catalog-h" style="margin-top:0">2 · Course catalog</h2>
+      <div class="panel">
+        <div class="controls">
+          <label class="sr" for="q">Search courses</label>
+          <input type="search" id="q" placeholder="Search code or title (e.g. CS, calculus)">
+          <label class="sr" for="campus">Campus</label>
+          <select id="campus"><option value="">All campuses</option></select>
+          <label class="chk"><input type="checkbox" id="open"> Open seats only</label>
+        </div>
+        <div id="catalog" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="sched-h">
+      <h2 class="section-title" id="sched-h" style="margin-top:0">3 · Your schedule</h2>
+      <div class="panel">
+        <div id="status" class="status idle" role="status" aria-live="polite">Add two or more sections to check your schedule.</div>
+        <ul class="picked" id="picked"></ul>
+        <table class="week" id="week" aria-label="Weekly schedule"></table>
+        <p class="legend">Navy = Evansdale · Brown = Downtown · Green = Health Sciences</p>
+        <p style="margin-top:12px"><button class="ghost" id="clear" type="button">Clear schedule</button></p>
+      </div>
+    </section>
+  </div>
+
+  <h2 class="section-title">Where this data comes from</h2>
+  <table class="sources">
+    <thead><tr><th>Source</th><th>Status in this prototype</th><th>To make it live</th></tr></thead>
+    <tbody>
+      <tr><td>Course catalog and seats</td><td><span class="badge sim">Simulated</span></td><td>Read-only API on the student information system, seat counts refreshed on a short interval</td></tr>
+      <tr><td>Prerequisites</td><td><span class="badge sim">Simulated</span></td><td>Degree audit / catalog rules service</td></tr>
+      <tr><td>Campus travel times</td><td><span class="badge sim">Simulated</span></td><td>Shuttle (PRT/Mountain Line) schedule feed</td></tr>
+      <tr><td>Completed courses</td><td>Chosen by you in the browser</td><td>Authenticated transcript lookup via campus single sign-on</td></tr>
+    </tbody>
+  </table>
+
+  <h2 class="section-title">How it protects student information</h2>
+  <div class="privacy">
+    <strong>This prototype collects nothing.</strong>
+    <ul>
+      <li>Everything runs in your browser. No server, no network calls, no analytics.</li>
+      <li>Your selections are not saved: reload and they are gone (no cookies, no localStorage).</li>
+      <li>The catalog is fictional. No real student records are used.</li>
+      <li>A production version would need single sign-on, read-only scoped access, and no storage of grades or IDs outside the registrar's systems.</li>
+    </ul>
+  </div>
+</div>
+<footer>Made with IBM Bob · All data is synthetic</footer>
+
+<script>
+const COURSES = {
+  "_source": "SIMULATED - fictional course catalog for the Bobathon. Not real WVU data.",
+  "term": "Fall (demo)",
+  "courses": [
+    {"code":"CS 110","title":"Intro to Programming","credits":3,"prereqs":[],"sections":[
+      {"id":"CS110-01","days":["M","W","F"],"start":"09:00","end":"09:50","campus":"Evansdale","room":"EV-101","seats":4,"capacity":40},
+      {"id":"CS110-02","days":["T","R"],"start":"13:00","end":"14:15","campus":"Evansdale","room":"EV-101","seats":0,"capacity":40}]},
+    {"code":"CS 220","title":"Data Structures","credits":4,"prereqs":["CS 110"],"sections":[
+      {"id":"CS220-01","days":["M","W","F"],"start":"10:00","end":"10:50","campus":"Evansdale","room":"EV-204","seats":9,"capacity":35},
+      {"id":"CS220-02","days":["T","R"],"start":"10:00","end":"11:15","campus":"Evansdale","room":"EV-204","seats":2,"capacity":35}]},
+    {"code":"CS 310","title":"Databases","credits":3,"prereqs":["CS 220"],"sections":[
+      {"id":"CS310-01","days":["T","R"],"start":"14:30","end":"15:45","campus":"Evansdale","room":"EV-310","seats":11,"capacity":30}]},
+    {"code":"MATH 150","title":"Calculus I","credits":4,"prereqs":[],"sections":[
+      {"id":"MATH150-01","days":["M","W","F"],"start":"11:00","end":"11:50","campus":"Downtown","room":"DT-120","seats":6,"capacity":45},
+      {"id":"MATH150-02","days":["T","R"],"start":"09:30","end":"10:45","campus":"Downtown","room":"DT-120","seats":14,"capacity":45}]},
+    {"code":"MATH 251","title":"Calculus II","credits":4,"prereqs":["MATH 150"],"sections":[
+      {"id":"MATH251-01","days":["M","W","F"],"start":"13:00","end":"13:50","campus":"Downtown","room":"DT-122","seats":8,"capacity":40}]},
+    {"code":"ENGL 101","title":"Composition and Rhetoric","credits":3,"prereqs":[],"sections":[
+      {"id":"ENGL101-01","days":["M","W","F"],"start":"12:00","end":"12:50","campus":"Downtown","room":"DT-210","seats":10,"capacity":25},
+      {"id":"ENGL101-02","days":["T","R"],"start":"11:30","end":"12:45","campus":"Downtown","room":"DT-210","seats":7,"capacity":25}]},
+    {"code":"BIOL 115","title":"Principles of Biology","credits":4,"prereqs":[],"sections":[
+      {"id":"BIOL115-01","days":["M","W"],"start":"14:00","end":"15:15","campus":"Health Sciences","room":"HS-150","seats":12,"capacity":60}]},
+    {"code":"STAT 215","title":"Introduction to Statistics","credits":3,"prereqs":["MATH 150"],"sections":[
+      {"id":"STAT215-01","days":["M","W","F"],"start":"14:00","end":"14:50","campus":"Health Sciences","room":"HS-220","seats":15,"capacity":50}]},
+    {"code":"PSYC 101","title":"Intro to Psychology","credits":3,"prereqs":[],"sections":[
+      {"id":"PSYC101-01","days":["T","R"],"start":"15:30","end":"16:45","campus":"Downtown","room":"DT-300","seats":20,"capacity":80}]},
+    {"code":"CS 450","title":"Applied AI Systems","credits":3,"prereqs":["CS 310"],"sections":[
+      {"id":"CS450-01","days":["T","R"],"start":"16:00","end":"17:15","campus":"Evansdale","room":"EV-410","seats":3,"capacity":24}]}
+  ]
+}
+;
+const TRAVEL  = {
+  "_source": "SIMULATED - fictional transit times in minutes (walk + shuttle). Not the real WVU schedule.",
+  "campuses": ["Downtown", "Evansdale", "Health Sciences"],
+  "minutes": {
+    "Downtown": {"Downtown": 5, "Evansdale": 25, "Health Sciences": 20},
+    "Evansdale": {"Downtown": 25, "Evansdale": 5, "Health Sciences": 30},
+    "Health Sciences": {"Downtown": 20, "Evansdale": 30, "Health Sciences": 5}
+  }
+}
+;
+
+const DAYS = ["M","T","W","R","F"];
+const $ = (id) => document.getElementById(id);
+const toMin = (t) => Number(t.slice(0,2)) * 60 + Number(t.slice(3,5));
+const el = (tag, props = {}, ...kids) => {
+  const n = document.createElement(tag);
+  Object.assign(n, props);
+  kids.forEach(k => n.append(k));
+  return n;
+};
+
+const allSections = COURSES.courses.flatMap(c => c.sections.map(s => ({ ...s, course: c.code, title: c.title })));
+const byId = (id) => allSections.find(s => s.id === id);
+let picked = [];              // section ids
+const completed = new Set();  // course codes
+
+// ---- completed chips
+const doneBox = $("done");
+COURSES.courses.forEach(c => {
+  const cb = el("input", { type: "checkbox", value: c.code });
+  cb.addEventListener("change", () => { cb.checked ? completed.add(c.code) : completed.delete(c.code); renderCatalog(); });
+  doneBox.append(el("label", {}, cb, c.code));
+});
+
+// ---- campus filter
+const campuses = [...new Set(COURSES.courses.flatMap(c => c.sections.map(s => s.campus)))];
+campuses.forEach(c => $("campus").append(el("option", { value: c, textContent: c })));
+["q","campus","open"].forEach(id => $(id).addEventListener("input", renderCatalog));
+
+function missingPrereqs(course) {
+  return course.prereqs.filter(p => !completed.has(p));
+}
+
+function renderCatalog() {
+  const q = $("q").value.trim().toLowerCase();
+  const campus = $("campus").value;
+  const openOnly = $("open").checked;
+  const root = $("catalog");
+  root.replaceChildren();
+  let shown = 0;
+  COURSES.courses.forEach(c => {
+    if (q && !(c.code.toLowerCase().includes(q) || c.title.toLowerCase().includes(q))) return;
+    const secs = c.sections.filter(s => (!campus || s.campus === campus) && (!openOnly || s.seats > 0));
+    if (!secs.length) return;
+    shown++;
+    const miss = missingPrereqs(c);
+    const box = el("div", { className: "course" });
+    box.append(el("h3", { textContent: `${c.code} · ${c.title} (${c.credits} cr)` }));
+    box.append(el("div", { className: "prq", textContent: c.prereqs.length ? `Prerequisites: ${c.prereqs.join(", ")}` + (miss.length ? ` — missing: ${miss.join(", ")}` : " — met") : "No prerequisites" }));
+    secs.forEach(s => {
+      const added = picked.includes(s.id);
+      const full = s.seats === 0;
+      const btn = el("button", { type: "button", textContent: added ? "Added" : full ? "Full" : miss.length ? "Prereq needed" : "Add" });
+      btn.disabled = added || full || miss.length > 0;
+      btn.setAttribute("aria-label", `${btn.textContent} ${s.id}`);
+      btn.addEventListener("click", () => { picked.push(s.id); renderAll(); });
+      const seats = el("span", { className: "seats" + (s.seats <= 3 ? " low" : ""), textContent: full ? "0 seats" : `${s.seats} seats` });
+      const meta = el("span", { className: "meta" }, `${s.days.join("")} ${s.start}–${s.end} · ${s.campus} ${s.room} · `, seats);
+      box.append(el("div", { className: "sec" }, meta, btn));
+    });
+    root.append(box);
+  });
+  if (!shown) root.append(el("p", { className: "empty", textContent: "No sections match your filters." }));
+}
+
+function feasibility(secs) {
+  const issues = [];
+  for (let i = 0; i < secs.length; i++) for (let j = i + 1; j < secs.length; j++) {
+    const a = secs[i], b = secs[j];
+    a.days.filter(d => b.days.includes(d)).forEach(day => {
+      const [f, s] = toMin(a.start) <= toMin(b.start) ? [a, b] : [b, a];
+      const gap = toMin(s.start) - toMin(f.end);
+      const need = TRAVEL.minutes[f.campus][s.campus];
+      if (gap < 0) issues.push(`${day}: ${a.course} and ${b.course} overlap.`);
+      else if (gap < need) issues.push(`${day}: ${f.course} (${f.campus}) → ${s.course} (${s.campus}) leaves ${gap} min, but the trip takes about ${need} min.`);
+    });
+  }
+  return issues;
+}
+
+function renderSchedule() {
+  const secs = picked.map(byId);
+  const list = $("picked");
+  list.replaceChildren();
+  secs.forEach(s => {
+    const rm = el("button", { type: "button", className: "ghost", textContent: "Remove" });
+    rm.setAttribute("aria-label", `Remove ${s.id}`);
+    rm.addEventListener("click", () => { picked = picked.filter(x => x !== s.id); renderAll(); });
+    list.append(el("li", {}, el("span", { textContent: `${s.course} · ${s.days.join("")} ${s.start}–${s.end} · ${s.campus}` }), rm));
+  });
+
+  const st = $("status");
+  st.replaceChildren();
+  if (secs.length < 2) {
+    st.className = "status idle";
+    st.textContent = "Add two or more sections to check your schedule.";
+  } else {
+    const issues = feasibility(secs);
+    if (!issues.length) { st.className = "status ok"; st.textContent = "Your schedule works: no overlaps and enough travel time between campuses."; }
+    else {
+      st.className = "status warn";
+      st.append(el("strong", { textContent: "This schedule doesn't work:" }));
+      const ul = el("ul");
+      issues.forEach(i => ul.append(el("li", { textContent: i })));
+      st.append(ul);
+    }
+  }
+
+  const wk = $("week");
+  wk.replaceChildren();
+  const head = el("tr", {}, el("th", { textContent: "" }));
+  DAYS.forEach(d => head.append(el("th", { scope: "col", textContent: d })));
+  wk.append(head);
+  for (let h = 8; h <= 17; h++) {
+    const row = el("tr", {}, el("td", { className: "hr", textContent: `${h}:00` }));
+    DAYS.forEach(d => {
+      const hit = secs.find(s => s.days.includes(d) && toMin(s.start) < (h + 1) * 60 && toMin(s.end) > h * 60);
+      const td = el("td", { textContent: hit ? hit.course : "" });
+      if (hit) td.className = "on c-" + hit.campus.split(" ")[0];
+      row.append(td);
+    });
+    wk.append(row);
+  }
+}
+
+function renderAll() { renderCatalog(); renderSchedule(); }
+$("clear").addEventListener("click", () => { picked = []; renderAll(); });
+renderAll();
+</script>
+</body>
+</html>

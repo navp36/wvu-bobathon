@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "wvu-campus": {
+      "command": "node",
+      "args": ["${workspaceFolder}/wvu-campus-mcp/build/index.js"]
+    }
+  }
+}

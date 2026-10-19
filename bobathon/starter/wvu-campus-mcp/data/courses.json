@@ -1,0 +1,30 @@
+{
+  "_source": "SIMULATED - fictional course catalog for the Bobathon. Not real WVU data.",
+  "term": "Fall (demo)",
+  "courses": [
+    {"code":"CS 110","title":"Intro to Programming","credits":3,"prereqs":[],"sections":[
+      {"id":"CS110-01","days":["M","W","F"],"start":"09:00","end":"09:50","campus":"Evansdale","room":"EV-101","seats":4,"capacity":40},
+      {"id":"CS110-02","days":["T","R"],"start":"13:00","end":"14:15","campus":"Evansdale","room":"EV-101","seats":0,"capacity":40}]},
+    {"code":"CS 220","title":"Data Structures","credits":4,"prereqs":["CS 110"],"sections":[
+      {"id":"CS220-01","days":["M","W","F"],"start":"10:00","end":"10:50","campus":"Evansdale","room":"EV-204","seats":9,"capacity":35},
+      {"id":"CS220-02","days":["T","R"],"start":"10:00","end":"11:15","campus":"Evansdale","room":"EV-204","seats":2,"capacity":35}]},
+    {"code":"CS 310","title":"Databases","credits":3,"prereqs":["CS 220"],"sections":[
+      {"id":"CS310-01","days":["T","R"],"start":"14:30","end":"15:45","campus":"Evansdale","room":"EV-310","seats":11,"capacity":30}]},
+    {"code":"MATH 150","title":"Calculus I","credits":4,"prereqs":[],"sections":[
+      {"id":"MATH150-01","days":["M","W","F"],"start":"11:00","end":"11:50","campus":"Downtown","room":"DT-120","seats":6,"capacity":45},
+      {"id":"MATH150-02","days":["T","R"],"start":"09:30","end":"10:45","campus":"Downtown","room":"DT-120","seats":14,"capacity":45}]},
+    {"code":"MATH 251","title":"Calculus II","credits":4,"prereqs":["MATH 150"],"sections":[
+      {"id":"MATH251-01","days":["M","W","F"],"start":"13:00","end":"13:50","campus":"Downtown","room":"DT-122","seats":8,"capacity":40}]},
+    {"code":"ENGL 101","title":"Composition and Rhetoric","credits":3,"prereqs":[],"sections":[
+      {"id":"ENGL101-01","days":["M","W","F"],"start":"12:00","end":"12:50","campus":"Downtown","room":"DT-210","seats":10,"capacity":25},
+      {"id":"ENGL101-02","days":["T","R"],"start":"11:30","end":"12:45","campus":"Downtown","room":"DT-210","seats":7,"capacity":25}]},
+    {"code":"BIOL 115","title":"Principles of Biology","credits":4,"prereqs":[],"sections":[
+      {"id":"BIOL115-01","days":["M","W"],"start":"14:00","end":"15:15","campus":"Health Sciences","room":"HS-150","seats":12,"capacity":60}]},
+    {"code":"STAT 215","title":"Introduction to Statistics","credits":3,"prereqs":["MATH 150"],"sections":[
+      {"id":"STAT215-01","days":["M","W","F"],"start":"14:00","end":"14:50","campus":"Health Sciences","room":"HS-220","seats":15,"capacity":50}]},
+    {"code":"PSYC 101","title":"Intro to Psychology","credits":3,"prereqs":[],"sections":[
+      {"id":"PSYC101-01","days":["T","R"],"start":"15:30","end":"16:45","campus":"Downtown","room":"DT-300","seats":20,"capacity":80}]},
+    {"code":"CS 450","title":"Applied AI Systems","credits":3,"prereqs":["CS 310"],"sections":[
+      {"id":"CS450-01","days":["T","R"],"start":"16:00","end":"17:15","campus":"Evansdale","room":"EV-410","seats":3,"capacity":24}]}
+  ]
+}
