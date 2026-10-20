@@ -97,7 +97,7 @@
     ol.steps > li::before { content: counter(step); position: absolute; left: 0; top: 2px; width: 28px; height: 28px; border-radius: 50%; background: var(--accent-tint); color: var(--accent); font-weight: 600; font-size: 13px; display: flex; align-items: center; justify-content: center; }
 
     /* Two-col */
-    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
     .panel { border: 1px solid #e5e7eb; border-radius: 6px; background: #f7f8fa; padding: 18px; }
     .panel h3 { margin-top: 0; }
 
@@ -126,7 +126,7 @@
     .seg.reserved { background: repeating-linear-gradient(45deg, #e5e7eb, #e5e7eb 4px, #f7f8fa 4px, #f7f8fa 8px); }
     .legend { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px 14px; margin: 12px 0 16px; font-size: 12px; color: #1f2328; }
     .legend span.sw { display: inline-block; width: 11px; height: 11px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; border: 1px solid rgba(0,0,0,.15); }
-    .sim-grid { display: grid; grid-template-columns: 250px 1fr; gap: 20px; }
+    .sim-grid { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 20px; }
     .btns { display: flex; flex-direction: column; gap: 8px; }
     .btns button, .btn { font: inherit; font-size: 13px; font-weight: 500; text-align: left; cursor: pointer; color: var(--accent); background: #fff; border: 1px solid var(--accent); border-radius: 4px; padding: 7px 12px; transition: background .15s, color .15s; }
     .btns button:hover, .btn:hover { background: var(--accent); color: #fff; }
@@ -143,6 +143,49 @@
     .logbox li.note { color: var(--accent-secondary); font-weight: 500; }
     .cost { font-size: 13px; color: #57606a; margin-top: 10px; }
 
+    /* Approval simulator */
+    .cards.three { grid-template-columns: repeat(3, 1fr); }
+    .cards.two { grid-template-columns: repeat(2, 1fr); }
+    .appr-grid { display: grid; grid-template-columns: 330px minmax(0, 1fr); gap: 24px; align-items: start; }
+    .appr-head { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: #57606a; margin-bottom: 8px; }
+    .presets { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+    .btn { font: inherit; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--accent); background: #fff; border: 1px solid var(--accent); border-radius: 4px; padding: 6px 12px; transition: background .15s, color .15s; }
+    .btn:hover { background: var(--accent); color: #fff; }
+    .btn.pri { background: var(--accent); color: #fff; }
+    .btn.pri:hover { background: #001a38; }
+    .btn.run { width: 100%; margin-top: 12px; padding: 9px 12px; }
+    .toggles { background: #fff; border: 1px solid #e5e7eb; border-radius: 6px; padding: 4px 12px; }
+    .arow { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; padding: 7px 0; border-bottom: 1px solid #f0f1f3; }
+    .arow:last-child { border-bottom: none; }
+    .arow .nm { font-size: 14px; font-weight: 500; line-height: 1.25; }
+    .arow .nm small { display: block; font-size: 11px; color: #8c959f; font-weight: 400; }
+    .arow .switch { width: 40px; height: 22px; }
+    .arow .switch::after { width: 16px; height: 16px; }
+    .arow .switch[aria-checked="true"]::after { transform: translateX(18px); }
+    .risk { font-size: 11px; font-weight: 600; padding: 1px 8px; border-radius: 999px; white-space: nowrap; border: 1px solid; display: inline-block; }
+    .risk.low   { color: #14532d; background: #e9f7ee; border-color: #a6d8b6; }
+    .risk.med   { color: #7a5c00; background: #fff8e1; border-color: #ecd48a; }
+    .risk.mhigh { color: #9a3412; background: #fff1e6; border-color: #f2b98a; }
+    .risk.high  { color: #7a1b13; background: #fdecea; border-color: #f1b3ad; }
+    .popup-area { min-height: 150px; }
+    .popup-area .idle { color: #57606a; font-size: 14px; padding: 18px; border: 1px dashed #c9ced6; border-radius: 6px; background: #fff; }
+    .popup { background: #fff; border: 2px solid var(--accent); border-radius: 8px; padding: 14px 16px; box-shadow: 0 6px 24px rgba(var(--accent-rgb), .18); outline: none; }
+    .popup .ph { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+    .popup .psum { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px; background: var(--code-bg); border-radius: 4px; padding: 8px 10px; }
+    .popup label { display: block; font-size: 13px; color: #57606a; margin-bottom: 4px; }
+    .popup input[type=text] { width: 100%; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px; padding: 8px 10px; border: 1px solid #c9ced6; border-radius: 4px; }
+    .popup details { margin-top: 10px; font-size: 13px; }
+    .popup summary { cursor: pointer; color: var(--accent); font-weight: 500; }
+    .popup pre.diff { margin-top: 6px; background: var(--code-bg); border: 1px solid #e5e7eb; border-radius: 4px; padding: 8px 10px; overflow-x: auto; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; line-height: 1.5; }
+    .popup pre.diff .add { background: #e6ffec; color: #14532d; display: block; }
+    .popup pre.diff .del { background: #ffebe9; color: #7a1b13; display: block; }
+    .popup .pbtns { display: flex; gap: 8px; margin-top: 12px; }
+    .logbox li .badge-s { font-size: 10px; font-weight: 700; letter-spacing: .05em; padding: 1px 6px; border-radius: 3px; flex-shrink: 0; margin-right: 8px; background: #e5e7eb; color: #57606a; }
+    .logbox li.auto .badge-s { background: #fff1e6; color: #9a3412; }
+    .logbox li.ok .badge-s { background: #e9f7ee; color: #14532d; }
+    .logbox li.rej .badge-s { background: #fdecea; color: #7a1b13; }
+    #appr-log li { justify-content: flex-start; align-items: baseline; }
+
     /* Footer */
     footer { border-top: 1px solid #e5e7eb; padding: 20px 0; text-align: center; font-size: 12px; color: #8c959f; margin-top: 64px; }
 
@@ -151,8 +194,8 @@
 
     @media (max-width: 860px) {
       .page-wrap, .header-inner { padding: 0 20px; }
-      .cards { grid-template-columns: 1fr 1fr; }
-      .two, .sim-grid { grid-template-columns: 1fr; }
+      .cards, .cards.three, .cards.two { grid-template-columns: 1fr 1fr; }
+      .two, .sim-grid, .appr-grid { grid-template-columns: 1fr; }
       .legend { grid-template-columns: 1fr 1fr; }
       .hero h1 { font-size: 36px; }
       .nav { display: none; }
@@ -175,6 +218,8 @@
       <a href="#rules">Rules</a>
       <a href="#context">Tasks &amp; context</a>
       <a href="#mcp">Connect MCP</a>
+      <a href="#approvals">Approvals</a>
+      <a href="#docs">Docs</a>
       <a href="#recap">Cheat sheet</a>
     </nav>
   </div>
@@ -184,7 +229,7 @@
   <section class="hero">
     <p class="hero-eyebrow">IBM Bob walkthrough · WVU Bobathon</p>
     <h1>How Bob works</h1>
-    <p>Four ideas explain almost everything about working with Bob: who Bob is being (<strong>modes</strong>), the standards it follows (<strong>rules</strong>), what it can remember (<strong>tasks and context</strong>), and what it can reach (<strong>MCP</strong>). Read through, then play with the interactive parts.</p>
+    <p>Four ideas explain almost everything about working with Bob: who Bob is being (<strong>modes</strong>), the standards it follows (<strong>rules</strong>), what it can remember (<strong>tasks and context</strong>), and what it can reach (<strong>MCP</strong>). Then two more: how you stay in control (<strong>approvals</strong>) and how Bob documents its work (<strong>docs</strong>). Read through, then play with the interactive parts.</p>
   </section>
 </div>
 
@@ -194,13 +239,18 @@
   <section class="block" id="overview" aria-labelledby="overview-h">
     <h2 class="section-title" id="overview-h">The mental model</h2>
     <h2 class="big">Role. Standards. Memory. Reach.</h2>
-    <p class="lede">Bob is an AI coding partner that lives in your IDE. It can read your files, edit them, run commands and call tools, but how it does that is shaped by four things you control.</p>
+    <p class="lede">Bob is an AI coding partner that lives in your IDE. It can read your files, edit them, run commands and call tools, but how it does that is shaped by six things you control.</p>
     <div class="cards">
       <div class="card fade-up"><span class="num">1 · Role</span><h3>Modes</h3><p>Who Bob is being right now, and what it is allowed to touch. Plan, build, or just explain.</p><a class="more" href="#modes">Jump to modes →</a></div>
       <div class="card fade-up"><span class="num">2 · Standards</span><h3>Rules</h3><p>Instructions Bob follows every time, so you never repeat yourself.</p><a class="more" href="#rules">Jump to rules →</a></div>
       <div class="card fade-up"><span class="num">3 · Memory</span><h3>Tasks &amp; context</h3><p>Each task has a fixed-size memory. It fills up as you work, so how you manage it matters.</p><a class="more" href="#context">Jump to context →</a></div>
       <div class="card fade-up"><span class="num">4 · Reach</span><h3>MCP</h3><p>Plug Bob into tools and data outside your repo: APIs, databases, internal systems.</p><a class="more" href="#mcp">Jump to MCP →</a></div>
     </div>
+    <div class="cards two" style="margin-top:16px">
+      <div class="card fade-up"><span class="num">5 · Control</span><h3>Approvals</h3><p>Bob asks before it edits, runs commands or calls tools. You choose how often.</p><a class="more" href="#approvals">Jump to approvals →</a></div>
+      <div class="card fade-up"><span class="num">6 · Evidence</span><h3>Documentation</h3><p>READMEs, architecture notes and HTML guides, written from your actual code.</p><a class="more" href="#docs">Jump to docs →</a></div>
+    </div>
+
     <div class="callout info"><strong>Where this comes from.</strong> This page summarizes IBM Bob's documentation. Menu labels and some names differ between Bob versions; where they do, the page says so. Trust what you see in your own Bob panel over this page.</div>
   </section>
 
@@ -511,6 +561,178 @@
     <div class="callout info"><strong>In the lab</strong> you'll connect a small local STDIO server of <em>simulated</em> WVU course, travel-time and study-room data, then ask Bob questions only its tools can answer. Want to write your own server? Ask Bob: <em>"Build me an MCP server that exposes …"</em>; it can scaffold, build and register one for you.</div>
   </section>
 
+  <!-- APPROVALS -->
+  <section class="block" id="approvals" aria-labelledby="approvals-h">
+    <h2 class="section-title" id="approvals-h">5 · You stay in control</h2>
+    <h2 class="big">Bob asks before it acts</h2>
+    <p class="lede">Bob doesn't silently change your project. Before it edits a file, runs a command, or calls an MCP tool, an <strong>approval prompt</strong> appears and waits for you. You decide how many of those prompts you want to see, per type of action.</p>
+
+    <h3>What a prompt looks like and what you can do with it</h3>
+    <ul class="plain">
+      <li><strong>One at a time.</strong> Prompts appear individually so each action gets a clear, deliberate look before it runs.</li>
+      <li><strong>Previews, not walls of text.</strong> Large details like a full file diff or long command output are collapsed into a preview; expand it if you want everything.</li>
+      <li><strong>Edit before you approve.</strong> When Bob proposes a terminal command, you can change the command right in the prompt instead of rejecting and re-explaining.</li>
+      <li><strong>Reject any time.</strong> Say no, then tell Bob what to do differently.</li>
+      <li><strong>Per-task overrides.</strong> You can set approvals for the current task only, independent of your global settings.</li>
+    </ul>
+
+    <h3>Try it: approve, edit, reject</h3>
+    <p>This is a simulation of one small task, "add a travel-time warning to the registration page". Pick how much you trust Bob, press <strong>Run</strong>, and see which actions interrupt you. <em>(Illustrative: your Bob's prompts look different. Risk levels follow the Bob docs.)</em></p>
+
+    <div class="sim" id="appr">
+      <div class="appr-grid">
+        <div>
+          <div class="appr-head"><strong>Auto-approve settings</strong></div>
+          <div class="presets" role="group" aria-label="Presets">
+            <button type="button" class="btn" id="appr-manual">Manual (safest)</button>
+            <button type="button" class="btn" id="appr-hybrid">Hybrid</button>
+            <button type="button" class="btn" id="appr-all">Everything</button>
+          </div>
+          <div class="toggles" id="appr-toggles"></div>
+          <button type="button" class="btn pri run" id="appr-run">▶ Run the task</button>
+        </div>
+        <div>
+          <div class="appr-head"><strong>Bob's approval prompt</strong></div>
+          <div class="popup-area" id="appr-popup" aria-live="polite"></div>
+          <div class="logbox" style="margin-top:12px"><h4>What happened</h4><ol id="appr-log" aria-live="polite"></ol></div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Try these three experiments</h3>
+    <ol class="steps">
+      <li><strong>Manual.</strong> Approve everything, but on the command prompt change <code class="inline">open registration.html</code> to something else before approving. That's the editable-command feature.</li>
+      <li><strong>Hybrid.</strong> Only the low-risk bookkeeping (to-do list, subtasks, subagents, mode switches) goes through silently. The prompts that matter still reach you.</li>
+      <li><strong>Everything.</strong> Nothing interrupts you, including the edit and the command. Read the summary at the end.</li>
+    </ol>
+
+    <h3>Not all actions are equally risky</h3>
+    <table class="grid">
+      <thead><tr><th>Action</th><th>What it allows</th><th>Risk (per docs)</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Read</strong></td><td>View files and folders</td><td><span class="risk med">Medium</span> consider sensitive data exposure</td></tr>
+        <tr><td><strong>Edit</strong></td><td>Create, edit and save files</td><td><span class="risk high">High</span> enable only in controlled environments</td></tr>
+        <tr><td><strong>Execute</strong></td><td>Run terminal commands</td><td><span class="risk high">High</span> use an allow-list of trusted commands; avoid wildcards</td></tr>
+        <tr><td><strong>MCP</strong></td><td>Use configured MCP servers</td><td><span class="risk mhigh">Medium-High</span> trusted servers only</td></tr>
+        <tr><td><strong>Skill</strong></td><td>Activate skills</td><td><span class="risk med">Medium</span> Bob asks before activating a skill by default</td></tr>
+        <tr><td><strong>Todo, Subtask, Subagent, Mode</strong></td><td>Task management and switching modes</td><td><span class="risk low">Low</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout warn"><strong>Why this matters.</strong> The docs warn that auto-approval bypasses confirmation prompts and can lead to data loss or file corruption; command execution is the most dangerous. Start restrictive, add permissions only as you need them, use different settings per project, and never auto-approve in production.</div>
+
+    <h3>Guardrails beyond the popup</h3>
+    <div class="cards three">
+      <div class="card"><span class="num">Mode permissions</span><h3>Limit what a mode can do</h3><p>A mode without <code class="inline">edit</code> or <code class="inline">command</code> in its groups can't change files or run commands at all. See the Registrar Reviewer in the Modes section.</p></div>
+      <div class="card"><span class="num">.bobignore</span><h3>Fence off files</h3><p>List files Bob must not access or modify, using <code class="inline">.gitignore</code> syntax. Good for secrets, credentials and generated output.</p></div>
+      <div class="card"><span class="num">Rollback</span><h3>Undo a bad turn</h3><p>Hover over a prompt in the chat and click <strong>Rollback</strong> to restore your files to that point. Docs tip: faster than correcting flawed output with more instructions.</p></div>
+    </div>
+    <div class="code">
+      <div class="label">.bobignore</div>
+<pre># Never let Bob read or change these
+.env
+config/secrets.json
+*.pem
+build/</pre>
+      <button class="copy" type="button" data-copy="bobignore" aria-label="Copy bobignore example">Copy</button>
+    </div>
+    <div class="callout info"><strong>Human in the loop also means Bob asks you.</strong> When a request is ambiguous, Bob can stop and ask clarifying questions, often with options to click, before it builds. Plan mode does this a lot. Answer them; it's cheaper than fixing a wrong guess.</div>
+    <div class="callout"><strong>Reviews run differently.</strong> The docs note that the <code class="inline">/review</code> code-review workflow runs with auto-approval through its analysis steps. It reports findings; check what you've enabled before you start it.</div>
+  </section>
+
+  <!-- DOCS -->
+  <section class="block" id="docs" aria-labelledby="docs-h">
+    <h2 class="section-title" id="docs-h">6 · Documentation on demand</h2>
+    <h2 class="big">Bob writes the docs, too</h2>
+    <p class="lede">Code that nobody can explain is a liability. Bob can read your project and write documentation as real files in your workspace: Markdown for repos and wikis, HTML for anything you want to hand to a non-developer. This is the part that makes a prototype something an IT team can actually evaluate.</p>
+
+    <div class="tabs" role="tablist" aria-label="Documentation types" id="doc-tabs">
+      <button class="tab" role="tab" id="dtab-readme" aria-controls="dpanel-readme" aria-selected="true">README.md</button>
+      <button class="tab" role="tab" id="dtab-arch" aria-controls="dpanel-arch" aria-selected="false" tabindex="-1">Architecture notes</button>
+      <button class="tab" role="tab" id="dtab-html" aria-controls="dpanel-html" aria-selected="false" tabindex="-1">HTML guides</button>
+      <button class="tab" role="tab" id="dtab-code" aria-controls="dpanel-code" aria-selected="false" tabindex="-1">Code comments</button>
+    </div>
+
+    <div class="tabpanel" role="tabpanel" id="dpanel-readme" aria-labelledby="dtab-readme">
+      <p>A README that matches the code, not what the code looked like last month.</p>
+      <div class="code"><div class="label">Prompt</div>
+<pre>Write a README.md for this project based on @wvu-campus-mcp/src/index.ts.
+Include: what it does, how to install and run it, the tools it exposes with
+an example call each, and a clear note that all data is simulated.</pre>
+        <button class="copy" type="button" data-copy="p-readme" aria-label="Copy README prompt">Copy</button></div>
+      <p style="font-size:13px;color:#57606a">Use <code class="inline">@</code> to point Bob at the exact files to document, so it reads what matters instead of exploring the whole repo (and spending your context).</p>
+    </div>
+    <div class="tabpanel" role="tabpanel" id="dpanel-arch" aria-labelledby="dtab-arch" hidden>
+      <p>Plan mode already writes <code class="inline">.md</code> plan files when you ask. The same works for design documentation after the fact.</p>
+      <div class="code"><div class="label">Prompt</div>
+<pre>Create docs/ARCHITECTURE.md describing how the registration page, the
+MCP server, and the data files fit together. Include a Mermaid diagram,
+a table of data sources marked LIVE or SIMULATED, and a "path to
+production" section listing what WVU IT would need to provide.</pre>
+        <button class="copy" type="button" data-copy="p-arch" aria-label="Copy architecture prompt">Copy</button></div>
+      <p style="font-size:13px;color:#57606a">Mermaid diagrams in Markdown render on GitHub and many wikis, so the diagram travels with the repo.</p>
+    </div>
+    <div class="tabpanel" role="tabpanel" id="dpanel-html" aria-labelledby="dtab-html" hidden>
+      <p>Not everyone reads Markdown. Ask for a single self-contained HTML file and you get something you can email, open by double-click, or present from.</p>
+      <div class="code"><div class="label">Prompt</div>
+<pre>Create guide.html: a single self-contained page (inline CSS and JS, no
+external requests) that explains this project to a non-technical reader.
+Use the style in templates/client_page_template.html. Include a short
+walkthrough with screenshots-as-text, and a FAQ.</pre>
+        <button class="copy" type="button" data-copy="p-html" aria-label="Copy HTML guide prompt">Copy</button></div>
+      <div class="callout info"><strong>You're looking at one.</strong> This walkthrough, the lab's reference page, and the event's lab guide were all drafted with Bob from prompts like the ones above, then reviewed by a person.</div>
+    </div>
+    <div class="tabpanel" role="tabpanel" id="dpanel-code" aria-labelledby="dtab-code" hidden>
+      <p>Documentation can live in the code itself.</p>
+      <div class="code"><div class="label">Prompt</div>
+<pre>Add JSDoc comments to every function in @src/helpers.js.
+Don't change any logic.</pre>
+        <button class="copy" type="button" data-copy="p-code" aria-label="Copy code comments prompt">Copy</button></div>
+      <p style="font-size:13px;color:#57606a">Pair with the approval prompt: because "don't change any logic" is a claim, check the diff Bob shows you before approving the edit.</p>
+    </div>
+
+    <h3>Make it repeatable</h3>
+    <div class="two">
+      <div class="panel">
+        <h3>A docs-only mode</h3>
+        <p style="font-size:14px">Give Bob a technical-writer persona that <em>can only edit Markdown files</em>. It can read your whole project but cannot touch code, so documentation work is low-risk by construction. (This mirrors an example in the Bob docs.)</p>
+        <div class="code">
+<pre>customModes:
+  - slug: docs-writer
+    name: 📝 Documentation Writer
+    description: Writes and revises Markdown docs
+    roleDefinition: You are a technical writer.
+    whenToUse: Use for writing and editing docs.
+    customInstructions: |-
+      Be clear and accurate.
+      Never invent behavior; say "unknown" when unsure.
+    groups:
+      - read
+      - - edit
+        - fileRegex: ".*\\.(md|mdx)$"
+          description: Markdown files only</pre>
+          <button class="copy" type="button" data-copy="docs-mode" aria-label="Copy docs-writer mode">Copy</button></div>
+      </div>
+      <div class="panel">
+        <h3>A rule that keeps docs honest</h3>
+        <p style="font-size:14px">Put your documentation standards in a rules file so every README and guide follows them without being asked.</p>
+        <div class="code">
+<pre># Documentation rules
+- Every project gets a README with:
+  what it is, how to run it, how to test it.
+- Label every data source LIVE or SIMULATED.
+- State what is NOT verified or not built.
+- Examples use fictional names and @example.com.
+- Never document behavior you haven't read
+  in the code.</pre>
+          <button class="copy" type="button" data-copy="docs-rule" aria-label="Copy documentation rules">Copy</button></div>
+      </div>
+    </div>
+
+    <div class="callout warn"><strong>Documentation is a draft until a person checks it.</strong> Bob writes quickly and fluently, which makes errors easy to miss. Check commands actually run, file paths exist, and nothing claims a feature the code doesn't have. Rules like "don't document behavior you haven't read" help, but the review is yours. This is the approval-prompt idea applied to docs.</div>
+  </section>
+
+
   <!-- RECAP -->
   <section class="block" id="recap" aria-labelledby="recap-h">
     <h2 class="section-title" id="recap-h">Cheat sheet</h2>
@@ -526,6 +748,10 @@
         <tr><td>Get a clean memory</td><td>New task</td><td><strong>+</strong> in the Bob panel</td></tr>
         <tr><td>See what's using your context</td><td>Token usage indicator</td><td>Top right of the Bob panel</td></tr>
         <tr><td>Connect Bob to data or systems</td><td>MCP server</td><td><code class="inline">.bob/mcp.json</code></td></tr>
+        <tr><td>Decide what Bob can do without asking</td><td>Auto-approve settings</td><td>Auto-Approve toolbar above the chat input</td></tr>
+        <tr><td>Keep Bob away from secrets</td><td><code class="inline">.bobignore</code></td><td>Project root</td></tr>
+        <tr><td>Undo a bad turn</td><td>Rollback</td><td>Hover a prompt in the chat</td></tr>
+        <tr><td>Get a README, architecture doc or HTML guide</td><td>Ask, pointing at files with <code class="inline">@</code></td><td>Any mode that can edit; or a docs-only custom mode</td></tr>
       </tbody>
     </table>
     <div class="callout"><strong>Always:</strong> review what Bob produces. It is a fast, capable collaborator, not an authority. Read the diff, run the code, and be honest about what is real and what is simulated.</div>
@@ -634,6 +860,147 @@
   }
   sw.addEventListener("click", function () { sw.setAttribute("aria-checked", sw.getAttribute("aria-checked") !== "true"); drawMock(); });
   drawMock();
+
+  /* approval-popup simulator (illustrative; risk levels per the Bob docs) */
+  (function () {
+    var ACTIONS = [
+      { k: "Read",     risk: "Medium",      desc: "View files and folders" },
+      { k: "Edit",     risk: "High",        desc: "Create, edit and save files" },
+      { k: "Execute",  risk: "High",        desc: "Run terminal commands" },
+      { k: "MCP",      risk: "Medium-High", desc: "Use configured MCP servers" },
+      { k: "Skill",    risk: "Medium",      desc: "Activate skills" },
+      { k: "Todo",     risk: "Low",         desc: "Update the to-do list" },
+      { k: "Subtask",  risk: "Low",         desc: "Create and complete subtasks" },
+      { k: "Subagent", risk: "Low",         desc: "Spawn focused subagents" },
+      { k: "Mode",     risk: "Low",         desc: "Switch modes" }
+    ];
+    var RISKCLS = { "Low": "low", "Medium": "med", "Medium-High": "mhigh", "High": "high" };
+    var STEPS = [
+      { cat: "Todo", verb: "update its to-do list", summary: "Read the page, check travel times, make the edit, open a preview" },
+      { cat: "Read", verb: "read a file", summary: "registration.html" },
+      { cat: "MCP", verb: "use an MCP tool", summary: "wvu-campus → check_schedule_feasibility",
+        lines: [["", "Server:    wvu-campus"], ["", "Tool:      check_schedule_feasibility"], ["", 'Arguments: {"sectionIds": ["CS220-01", "MATH150-01"]}']] },
+      { cat: "Edit", verb: "edit a file", summary: "registration.html  (+2 −1 lines)",
+        lines: [["", "@@ function feasibility(secs) @@"],
+                ["", "      if (gap < 0) issues.push(overlapMessage(a, b, day));"],
+                ["del", "-     else if (gap < 15) issues.push('Tight transition');"],
+                ["add", "+     else if (gap < need) issues.push("],
+                ["add", "+       day + ': ' + gap + ' min between classes, trip takes ' + need + ' min');"]] },
+      { cat: "Execute", verb: "run a command", summary: "", command: "open registration.html" }
+    ];
+
+    var on = {}, idx = 0, stats, entries = [], started = false;
+    var tog = $("appr-toggles"), pop = $("appr-popup"), logEl = $("appr-log");
+    var switches = {};
+
+    ACTIONS.forEach(function (a) {
+      on[a.k] = false;
+      var row = el("div", "arow");
+      var sw = el("button", "switch");
+      sw.type = "button"; sw.setAttribute("role", "switch"); sw.setAttribute("aria-checked", "false");
+      sw.setAttribute("aria-label", "Auto-approve " + a.k + " (" + a.risk + " risk)");
+      sw.addEventListener("click", function () { on[a.k] = !on[a.k]; drawToggles(); });
+      switches[a.k] = sw;
+      var nm = el("span", "nm", a.k); nm.append(el("small", "", a.desc));
+      row.append(sw, nm, el("span", "risk " + RISKCLS[a.risk], a.risk));
+      tog.append(row);
+    });
+    function drawToggles() { ACTIONS.forEach(function (a) { switches[a.k].setAttribute("aria-checked", on[a.k]); }); }
+    function preset(list) { ACTIONS.forEach(function (a) { on[a.k] = list === "all" || list.indexOf(a.k) >= 0; }); drawToggles(); }
+    $("appr-manual").addEventListener("click", function () { preset([]); });
+    $("appr-hybrid").addEventListener("click", function () { preset(["Todo", "Subtask", "Subagent", "Mode"]); });
+    $("appr-all").addEventListener("click", function () { preset("all"); });
+
+    function risk(cat) { return ACTIONS.filter(function (a) { return a.k === cat; })[0].risk; }
+    function log(text, kind) { entries.push({ t: text, k: kind }); drawLog(); }
+    function drawLog() {
+      logEl.replaceChildren();
+      entries.forEach(function (e) {
+        var li = el("li", e.k);
+        li.append(el("span", "badge-s", e.k === "auto" ? "AUTO" : e.k === "ok" ? "YOU ✓" : e.k === "rej" ? "YOU ✗" : "INFO"), el("span", "", e.t));
+        logEl.append(li);
+      });
+    }
+    function idle() {
+      pop.replaceChildren();
+      pop.append(el("p", "idle", started ? "" : "Choose a setting on the left, then press Run. Bob will stop and ask before every action you have not auto-approved."));
+    }
+    function finish(rejected) {
+      pop.replaceChildren();
+      var c = el("div", "callout" + (rejected ? " warn" : " info"));
+      if (rejected) {
+        c.append(el("strong", "", "Stopped by you. "), document.createTextNode("Nothing after that point ran. Bob waits for your direction; you can tell it what to do differently."));
+      } else {
+        c.append(el("strong", "", "Task complete. "),
+          document.createTextNode(stats.manual + " action" + (stats.manual === 1 ? "" : "s") + " reviewed by you, " + stats.auto + " auto-approved."));
+        if (stats.autoHigh) c.append(el("div", "", "⚠ " + stats.autoHigh + " high-risk action" + (stats.autoHigh === 1 ? " was" : "s were") + " approved without you seeing it first. If that is not what you wanted, review the result carefully and consider rolling back."));
+        else if (stats.manual === 0) c.append(el("div", "", "Nothing needed your approval. Fine for low-risk actions; think twice before extending that to Edit and Execute."));
+      }
+      pop.append(c);
+      $("appr-run").textContent = "↻ Run again";
+    }
+    function next() {
+      pop.replaceChildren();
+      if (idx >= STEPS.length) { finish(false); return; }
+      var s = STEPS[idx];
+      var label = s.command ? s.command : s.summary;
+      if (on[s.cat]) {
+        stats.auto++; if (risk(s.cat) === "High") stats.autoHigh++;
+        log(s.cat + ": " + label + "  (auto-approved)", "auto");
+        idx++; next(); return;
+      }
+      showPopup(s);
+    }
+    function showPopup(s) {
+      var card = el("div", "popup"); card.tabIndex = -1;
+      card.setAttribute("role", "group"); card.setAttribute("aria-label", "Approval request: " + s.cat);
+      var head = el("div", "ph");
+      head.append(el("strong", "", "Bob wants to " + s.verb), el("span", "risk " + RISKCLS[risk(s.cat)], s.cat + " · " + risk(s.cat) + " risk"));
+      card.append(head);
+      var input = null;
+      if (s.command) {
+        var lab = el("label", "", "Command. You can edit it before approving:");
+        lab.htmlFor = "appr-cmd";
+        input = el("input"); input.type = "text"; input.id = "appr-cmd"; input.value = s.command; input.spellcheck = false;
+        card.append(lab, input);
+      } else {
+        card.append(el("p", "psum", s.summary));
+      }
+      if (s.lines) {
+        var det = el("details");
+        det.append(el("summary", "", s.cat === "Edit" ? "Show full diff" : "Show details"));
+        var pre = el("pre", "diff");
+        s.lines.forEach(function (l) { pre.append(el("span", l[0], l[1] + "\n")); });
+        det.append(pre); card.append(det);
+      }
+      var btns = el("div", "pbtns");
+      var ok = el("button", "btn pri", "Approve"); ok.type = "button";
+      var no = el("button", "btn", "Reject"); no.type = "button";
+      ok.addEventListener("click", function () {
+        stats.manual++;
+        var edited = input && input.value.trim() !== s.command;
+        log(s.cat + ": " + (input ? input.value.trim() : s.summary) + (edited ? "  (approved after you edited the command)" : "  (approved by you)"), "ok");
+        idx++; next();
+      });
+      no.addEventListener("click", function () {
+        log(s.cat + ": " + (input ? input.value.trim() : s.summary) + "  (rejected; not run)", "rej");
+        finish(true);
+      });
+      btns.append(ok, no); card.append(btns);
+      pop.append(card);
+      card.focus();
+    }
+    $("appr-run").addEventListener("click", function () {
+      started = true; idx = 0; entries = []; stats = { manual: 0, auto: 0, autoHigh: 0 };
+      log("Task: “Add a travel-time warning to registration.html”", "note");
+      next();
+    });
+    idle();
+  })();
+
+  /* docs tabs */
+  wireTabs("doc-tabs");
+
 
   /* copy buttons */
   var SNIPPETS = {};
