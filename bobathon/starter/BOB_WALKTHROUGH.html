@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How Bob Works · WVU Bobathon walkthrough</title>
+<style>
+    :root {
+      --accent: #002855;
+      --accent-rgb: 0,40,85;
+      --accent-secondary: #8a6500;
+      --accent-tint: #e6ecf5;
+      --accent-border: #c3d0e3;
+      --accent-border-hover: #9fb3d1;
+      --gold: #eaaa00;
+      --bad: #b42318;
+      --good: #1a7f37;
+      --code-bg: #f0f1f3;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; scroll-padding-top: 84px; }
+    body { font-family: -apple-system, "Segoe UI", system-ui, sans-serif; font-size: 15px; line-height: 1.6; color: #1f2328; background: #fff; }
+    a { color: var(--accent); }
+    a:hover { text-decoration: underline; }
+    :focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+    .page-wrap { max-width: 1000px; margin: 0 auto; padding: 0 40px; }
+
+    /* Header */
+    .header { border-bottom: 1px solid #e5e7eb; padding: 14px 0; position: sticky; top: 0; background: rgba(255,255,255,0.94); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 100; transition: box-shadow .2s ease; }
+    .header.scrolled { box-shadow: 0 1px 12px rgba(0,0,0,0.07); }
+    .header-inner { max-width: 1000px; margin: 0 auto; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .brand { font-weight: 600; color: var(--accent); white-space: nowrap; }
+    .brand span { color: var(--gold); }
+    .nav { display: flex; gap: 18px; flex-wrap: wrap; justify-content: flex-end; }
+    .nav a { font-size: 13px; font-weight: 500; color: #57606a; text-decoration: none; padding: 4px 0; border-bottom: 2px solid transparent; }
+    .nav a:hover, .nav a.active { color: var(--accent); border-bottom-color: var(--gold); }
+
+    /* Hero */
+    @keyframes hero-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+    .hero { padding: 56px 0 24px; max-width: 860px; }
+    .hero-eyebrow { font-size: 13px; color: var(--accent); font-weight: 500; margin-bottom: 10px; animation: hero-in .4s cubic-bezier(.22,1,.36,1) .05s both; }
+    .hero h1 { font-size: 52px; font-weight: 300; line-height: 1.1; margin-bottom: 16px; animation: hero-in .45s cubic-bezier(.22,1,.36,1) .12s both; }
+    .hero p { font-size: 16px; color: #57606a; max-width: 680px; animation: hero-in .45s cubic-bezier(.22,1,.36,1) .18s both; }
+
+    /* Sections */
+    section.block { padding-top: 8px; }
+    .section-title { font-size: 14px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: .04em; margin: 56px 0 8px; }
+    h2.big { font-size: 30px; font-weight: 300; line-height: 1.2; margin-bottom: 12px; }
+    .lede { color: #57606a; max-width: 720px; margin-bottom: 24px; }
+    h3 { font-size: 16px; font-weight: 600; margin: 24px 0 8px; }
+    p + p { margin-top: 10px; }
+    ul.plain { margin: 8px 0 0 20px; }
+    ul.plain li { margin-bottom: 4px; }
+
+    /* Cards */
+    .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .card { border: 1px solid #e5e7eb; border-radius: 6px; padding: 20px; background: #f7f8fa; display: flex; flex-direction: column; gap: 8px; transition: border-color .18s, box-shadow .18s, transform .18s cubic-bezier(.22,1,.36,1); }
+    .card:hover { border-color: var(--accent-border); box-shadow: 0 4px 16px rgba(var(--accent-rgb),.10); transform: translateY(-2px); }
+    .card .num { font-size: 11px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: .06em; }
+    .card h3 { margin: 0; }
+    .card p { font-size: 13px; color: #57606a; line-height: 1.5; }
+    .card a.more { font-size: 13px; font-weight: 500; margin-top: auto; }
+
+    /* Callouts */
+    .callout { border-left: 4px solid var(--gold); background: #fffdf5; padding: 12px 16px; font-size: 14px; border-radius: 0 6px 6px 0; margin: 16px 0; }
+    .callout.info { border-left-color: var(--accent); background: var(--accent-tint); }
+    .callout.warn { border-left-color: var(--bad); background: #fdecea; }
+    .callout strong { color: #1f2328; }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 4px; border-bottom: 1px solid #e5e7eb; flex-wrap: wrap; }
+    .tab { font: inherit; font-size: 14px; font-weight: 500; background: none; border: none; border-bottom: 3px solid transparent; padding: 8px 16px; cursor: pointer; color: #57606a; }
+    .tab:hover { color: var(--accent); }
+    .tab[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--gold); }
+    .tabpanel { padding: 18px 0 0; }
+    .tabpanel[hidden] { display: none; }
+
+    /* Tables */
+    table.grid { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0; }
+    table.grid th, table.grid td { border-bottom: 1px solid #e5e7eb; padding: 8px 10px; text-align: left; vertical-align: top; }
+    table.grid th { color: var(--accent); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+    td.yes { color: var(--good); font-weight: 600; }
+    td.no { color: #8c959f; }
+    tr.hl td, tr.hl th { background: var(--accent-tint); }
+
+    /* Code */
+    .code { position: relative; margin: 10px 0; }
+    .code pre { background: var(--code-bg); border: 1px solid #e5e7eb; border-radius: 6px; padding: 14px 16px; overflow-x: auto; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; line-height: 1.55; }
+    .code .label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: #57606a; margin-bottom: 4px; }
+    .copy { position: absolute; top: 22px; right: 8px; font: inherit; font-size: 12px; background: #fff; color: var(--accent); border: 1px solid var(--accent-border); border-radius: 4px; padding: 3px 10px; cursor: pointer; }
+    .copy:hover { background: var(--accent); color: #fff; }
+    code.inline { background: var(--code-bg); border-radius: 3px; padding: 1px 5px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12.5px; }
+
+    /* Steps */
+    ol.steps { list-style: none; counter-reset: step; margin: 12px 0; }
+    ol.steps > li { counter-increment: step; position: relative; padding: 4px 0 14px 44px; }
+    ol.steps > li::before { content: counter(step); position: absolute; left: 0; top: 2px; width: 28px; height: 28px; border-radius: 50%; background: var(--accent-tint); color: var(--accent); font-weight: 600; font-size: 13px; display: flex; align-items: center; justify-content: center; }
+
+    /* Two-col */
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .panel { border: 1px solid #e5e7eb; border-radius: 6px; background: #f7f8fa; padding: 18px; }
+    .panel h3 { margin-top: 0; }
+
+    /* Rules demo */
+    .switch-row { display: flex; align-items: center; gap: 12px; margin: 14px 0; font-size: 14px; }
+    .switch { position: relative; width: 48px; height: 26px; border-radius: 999px; border: 1px solid #c9ced6; background: #d0d7de; cursor: pointer; padding: 0; transition: background .2s; }
+    .switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform .2s; }
+    .switch[aria-checked="true"] { background: var(--accent); border-color: var(--accent); }
+    .switch[aria-checked="true"]::after { transform: translateX(22px); }
+    .mock { border: 1px solid #c9ced6; border-radius: 6px; background: #fff; overflow: hidden; font-size: 13px; }
+    .mock .bar { padding: 8px 12px; color: #fff; display: flex; justify-content: space-between; align-items: center; background: #3b6fd4; }
+    .mock.on .bar { background: var(--accent); }
+    .mock .body { padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+    .mock .pill { font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--gold); background: #fff8e1; color: var(--accent-secondary); }
+    .mock ul { margin: 0 0 0 18px; }
+    .mock li.miss { color: #8c959f; }
+    .mock li.hit { color: #14532d; }
+
+    /* Context simulator */
+    .sim { border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; background: #f7f8fa; }
+    .sim-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+    .sim-top .task { font-weight: 600; }
+    .sim-top .meter { font-size: 13px; color: #57606a; }
+    .track { display: flex; height: 34px; border: 1px solid #c9ced6; border-radius: 6px; overflow: hidden; background: #fff; }
+    .seg { height: 100%; transition: flex-basis .35s cubic-bezier(.22,1,.36,1); min-width: 0; }
+    .seg.reserved { background: repeating-linear-gradient(45deg, #e5e7eb, #e5e7eb 4px, #f7f8fa 4px, #f7f8fa 8px); }
+    .legend { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px 14px; margin: 12px 0 16px; font-size: 12px; color: #1f2328; }
+    .legend span.sw { display: inline-block; width: 11px; height: 11px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; border: 1px solid rgba(0,0,0,.15); }
+    .sim-grid { display: grid; grid-template-columns: 250px 1fr; gap: 20px; }
+    .btns { display: flex; flex-direction: column; gap: 8px; }
+    .btns button, .btn { font: inherit; font-size: 13px; font-weight: 500; text-align: left; cursor: pointer; color: var(--accent); background: #fff; border: 1px solid var(--accent); border-radius: 4px; padding: 7px 12px; transition: background .15s, color .15s; }
+    .btns button:hover, .btn:hover { background: var(--accent); color: #fff; }
+    .btns button.sec { border-color: #c9ced6; color: #57606a; }
+    .btns button.sec:hover { background: #57606a; color: #fff; }
+    .btns button.pri { background: var(--accent); color: #fff; }
+    .btns button.pri:hover { background: #001a38; }
+    .logbox { background: #fff; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px 12px; max-height: 270px; overflow-y: auto; font-size: 13px; }
+    .logbox h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: #57606a; margin-bottom: 6px; }
+    .logbox ol { list-style: none; }
+    .logbox li { padding: 4px 0; border-bottom: 1px solid #f0f1f3; display: flex; justify-content: space-between; gap: 8px; }
+    .logbox li.sum { color: #8c959f; text-decoration: line-through; }
+    .logbox li .tag { font-size: 11px; font-weight: 600; color: var(--bad); text-decoration: none; white-space: nowrap; }
+    .logbox li.note { color: var(--accent-secondary); font-weight: 500; }
+    .cost { font-size: 13px; color: #57606a; margin-top: 10px; }
+
+    /* Footer */
+    footer { border-top: 1px solid #e5e7eb; padding: 20px 0; text-align: center; font-size: 12px; color: #8c959f; margin-top: 64px; }
+
+    .fade-up { opacity: 0; transform: translateY(10px); transition: opacity .35s ease, transform .35s cubic-bezier(.22,1,.36,1); }
+    .fade-up.visible { opacity: 1; transform: none; }
+
+    @media (max-width: 860px) {
+      .page-wrap, .header-inner { padding: 0 20px; }
+      .cards { grid-template-columns: 1fr 1fr; }
+      .two, .sim-grid { grid-template-columns: 1fr; }
+      .legend { grid-template-columns: 1fr 1fr; }
+      .hero h1 { font-size: 36px; }
+      .nav { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .hero-eyebrow, .hero h1, .hero p { animation: none; }
+      .fade-up { opacity: 1; transform: none; transition: none; }
+      .card, .seg, .switch, .switch::after, .header { transition: none; }
+    }
+  </style>
+</head>
+<body>
+<header class="header" id="top-header">
+  <div class="header-inner">
+    <div class="brand">WVU <span>●</span> Bobathon</div>
+    <nav class="nav" aria-label="Walkthrough sections">
+      <a href="#overview">Overview</a>
+      <a href="#modes">Modes</a>
+      <a href="#rules">Rules</a>
+      <a href="#context">Tasks &amp; context</a>
+      <a href="#mcp">Connect MCP</a>
+      <a href="#recap">Cheat sheet</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-wrap">
+  <section class="hero">
+    <p class="hero-eyebrow">IBM Bob walkthrough · WVU Bobathon</p>
+    <h1>How Bob works</h1>
+    <p>Four ideas explain almost everything about working with Bob: who Bob is being (<strong>modes</strong>), the standards it follows (<strong>rules</strong>), what it can remember (<strong>tasks and context</strong>), and what it can reach (<strong>MCP</strong>). Read through, then play with the interactive parts.</p>
+  </section>
+</div>
+
+<main class="page-wrap">
+
+  <!-- OVERVIEW -->
+  <section class="block" id="overview" aria-labelledby="overview-h">
+    <h2 class="section-title" id="overview-h">The mental model</h2>
+    <h2 class="big">Role. Standards. Memory. Reach.</h2>
+    <p class="lede">Bob is an AI coding partner that lives in your IDE. It can read your files, edit them, run commands and call tools, but how it does that is shaped by four things you control.</p>
+    <div class="cards">
+      <div class="card fade-up"><span class="num">1 · Role</span><h3>Modes</h3><p>Who Bob is being right now, and what it is allowed to touch. Plan, build, or just explain.</p><a class="more" href="#modes">Jump to modes →</a></div>
+      <div class="card fade-up"><span class="num">2 · Standards</span><h3>Rules</h3><p>Instructions Bob follows every time, so you never repeat yourself.</p><a class="more" href="#rules">Jump to rules →</a></div>
+      <div class="card fade-up"><span class="num">3 · Memory</span><h3>Tasks &amp; context</h3><p>Each task has a fixed-size memory. It fills up as you work, so how you manage it matters.</p><a class="more" href="#context">Jump to context →</a></div>
+      <div class="card fade-up"><span class="num">4 · Reach</span><h3>MCP</h3><p>Plug Bob into tools and data outside your repo: APIs, databases, internal systems.</p><a class="more" href="#mcp">Jump to MCP →</a></div>
+    </div>
+    <div class="callout info"><strong>Where this comes from.</strong> This page summarizes IBM Bob's documentation. Menu labels and some names differ between Bob versions; where they do, the page says so. Trust what you see in your own Bob panel over this page.</div>
+  </section>
+
+  <!-- MODES -->
+  <section class="block" id="modes" aria-labelledby="modes-h">
+    <h2 class="section-title" id="modes-h">1 · Modes</h2>
+    <h2 class="big">Same Bob, different job</h2>
+    <p class="lede">A mode is a persona plus a set of permissions. Switch modes with the mode selector in the Bob panel. Switching changes what Bob is good at, and just as importantly, what it is <em>not allowed to do</em>.</p>
+
+    <div class="tabs" role="tablist" aria-label="Built-in modes" id="mode-tabs">
+      <button class="tab" role="tab" id="tab-plan" aria-controls="panel-plan" aria-selected="true" data-mode="plan">Plan</button>
+      <button class="tab" role="tab" id="tab-agent" aria-controls="panel-agent" aria-selected="false" data-mode="agent" tabindex="-1">Agent / Code</button>
+      <button class="tab" role="tab" id="tab-ask" aria-controls="panel-ask" aria-selected="false" data-mode="ask" tabindex="-1">Ask</button>
+    </div>
+    <div class="tabpanel" role="tabpanel" id="panel-plan" aria-labelledby="tab-plan">
+      <p><strong>Use it before building.</strong> Design the architecture, break a problem down, write a specification. Great for new projects and complex features.</p>
+      <div class="callout"><strong>Try:</strong> <em>"Plan a single-file class registration page. What should it show, what checks should it run, and what could go wrong?"</em></div>
+    </div>
+    <div class="tabpanel" role="tabpanel" id="panel-agent" aria-labelledby="tab-agent" hidden>
+      <p><strong>Use it to make changes.</strong> Implement features, fix bugs, refactor, and run commands. It has the fullest tool access, which is why it is also the mode to be most careful with.</p>
+      <div class="callout"><strong>Name note:</strong> the Bob docs call this mode <strong>Agent</strong> on some pages and <strong>Code</strong> on others. It is the same job: the mode that writes code.</div>
+      <div class="callout"><strong>Try:</strong> <em>"Build the plan as registration.html in this folder."</em></div>
+    </div>
+    <div class="tabpanel" role="tabpanel" id="panel-ask" aria-labelledby="tab-ask" hidden>
+      <p><strong>Use it to understand.</strong> Explanations, code analysis and recommendations, with no file changes and no commands. Safe to point at an unfamiliar codebase.</p>
+      <div class="callout"><strong>Try:</strong> <em>"Explain how this project loads its data. Don't change anything."</em></div>
+    </div>
+
+    <h3>What each built-in mode can do</h3>
+    <p style="color:#57606a;font-size:13px">Tool access per the Bob docs' mode comparison. Highlighted row = the mode you selected above.</p>
+    <table class="grid" id="mode-matrix" aria-label="Tool access by mode"></table>
+    <p style="font-size:13px;color:#57606a">Bob's docs also list <strong>Advanced</strong> and <strong>Orchestrator</strong> as built-in modes, and Bob Shell describes Advanced as the mode for extended capabilities including MCP tools. Check your version's mode list for the full picture.</p>
+
+    <div class="callout info"><strong>The pattern that works:</strong> Plan → Agent → (Ask whenever you need to understand something). Five minutes planning saves thirty fixing.</div>
+
+    <h3>Build your own mode</h3>
+    <p>A custom mode combines a <strong>role</strong>, <strong>behavior instructions</strong> and a <strong>fixed set of permitted tools</strong>. The permission list is what makes it trustworthy: a mode without <code class="inline">edit</code> in its groups cannot modify files, even if you ask it to.</p>
+    <div class="code">
+      <div class="label">.bob/custom_modes.yaml</div>
+<pre>customModes:
+  - slug: registrar-reviewer
+    name: 🛡️ Registrar Reviewer
+    description: Read-only reviewer for privacy and accessibility
+    roleDefinition: &gt;-
+      You are a skeptical university IT reviewer. You report
+      findings; you never modify files.
+    whenToUse: Use after building a page, before showing it to anyone.
+    customInstructions: |-
+      Report PRIVACY, ACCESSIBILITY and DATA HONESTY findings,
+      then a verdict. Quote the exact line for every finding.
+    groups:
+      - read
+      - mcp</pre>
+      <button class="copy" type="button" data-copy="modes-yaml" aria-label="Copy custom mode example">Copy</button>
+    </div>
+    <ul class="plain">
+      <li>Edit it from Bob: <strong>Settings → Modes → Edit Project Modes</strong> (project) or the global equivalent.</li>
+      <li>Reuse a built-in slug (for example <code class="inline">ask</code>) in your project file to <strong>override</strong> that built-in mode. Project overrides beat global overrides, which beat defaults.</li>
+      <li><strong>Rules still apply in custom modes.</strong> A custom mode adds mode-specific behavior; it does not bypass your rules.</li>
+    </ul>
+  </section>
+
+  <!-- RULES -->
+  <section class="block" id="rules" aria-labelledby="rules-h">
+    <h2 class="section-title" id="rules-h">2 · Rules</h2>
+    <h2 class="big">Say it once. Bob remembers it every time.</h2>
+    <p class="lede">Rules are instructions Bob reads at the start of every task, in every conversation. They are for standards that should never need repeating: branding, security expectations, test commands, naming conventions.</p>
+
+    <h3>See the difference</h3>
+    <p>Same prompt, with and without a rules file. <em>(Illustrative: real output varies from run to run.)</em></p>
+    <div class="callout" style="margin-bottom:0"><strong>Prompt:</strong> "Build a class registration page."</div>
+    <div class="switch-row">
+      <button class="switch" id="rules-switch" role="switch" aria-checked="false" aria-labelledby="rules-switch-label"></button>
+      <span id="rules-switch-label"><strong id="rules-state">Rules file: OFF</strong></span>
+    </div>
+    <div class="two">
+      <div>
+        <div class="mock" id="mock" aria-live="polite">
+          <div class="bar"><span id="mock-title">Class Registration</span><span class="pill" id="mock-pill" hidden>Simulated data</span></div>
+          <div class="body">
+            <span>Course list · Search · Add to cart</span>
+            <ul id="mock-list"></ul>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="code">
+          <div class="label">.bob/rules/wvu-style.md</div>
+<pre># WVU house rules
+- Primary color #002855, accent #EAAA00
+- Single HTML file, no network requests
+- Label every data source LIVE or SIMULATED
+- Show a "Simulated data" badge
+- Explain how student data is protected
+- Keyboard-accessible, labeled inputs</pre>
+          <button class="copy" type="button" data-copy="rules-md" aria-label="Copy rules example">Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <h3>Where rules live</h3>
+    <table class="grid">
+      <thead><tr><th>Location</th><th>Applies to</th><th>Good for</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">.bob/rules/</code></td><td>This project, every mode</td><td>Team standards you can commit to the repo</td></tr>
+        <tr><td><code class="inline">.bob/rules-{mode-slug}/</code></td><td>This project, one mode only</td><td>e.g. testing rules just for the coding mode, architecture rules just for Plan</td></tr>
+        <tr><td><code class="inline">~/.bob/rules/</code></td><td>Every project on your machine</td><td>Your personal preferences</td></tr>
+        <tr><td><code class="inline">AGENTS.md</code></td><td>This project</td><td>Project overview, build and test commands. Generated for you by <code class="inline">/init</code></td></tr>
+      </tbody>
+    </table>
+    <ul class="plain">
+      <li>Files in a rules folder are loaded <strong>alphabetically</strong>, so numbering them (<code class="inline">01-style.md</code>, <code class="inline">02-security.md</code>) controls order.</li>
+      <li>Run <code class="inline">/init</code> once in a new project. Bob studies the codebase and writes an <code class="inline">AGENTS.md</code> plus a per-mode file for each built-in mode.</li>
+    </ul>
+    <div class="callout warn"><strong>Rules cost context.</strong> They are loaded at the start of every task and re-sent with every message. A 3,000-word rules file is a tax you pay on everything. Keep rules short and specific; see the next section.</div>
+  </section>
+
+  <!-- CONTEXT -->
+  <section class="block" id="context" aria-labelledby="context-h">
+    <h2 class="section-title" id="context-h">3 · Tasks &amp; context</h2>
+    <h2 class="big">Every task has a memory, and it fills up</h2>
+    <p class="lede">Each <strong>task</strong> (one conversation in the Bob panel) has its own <strong>context window</strong>: the fixed amount of text Bob can hold in mind at once. Everything counts against it: instructions, rules, tool descriptions, your prompts, Bob's replies, every file it reads and every command output.</p>
+
+    <div class="two">
+      <div class="panel">
+        <h3>Fixed overhead (loaded at the start)</h3>
+        <ul class="plain">
+          <li><strong>System prompt</strong>: Bob's core instructions</li>
+          <li><strong>Tool definitions</strong>: what Bob can do</li>
+          <li><strong>MCP tools</strong>: descriptions of every connected server's tools</li>
+          <li><strong>Rules</strong>: your rule files and <code class="inline">AGENTS.md</code></li>
+          <li><strong>Skills</strong>: loaded skill instructions</li>
+        </ul>
+        <p style="font-size:13px;color:#57606a;margin-top:8px">The docs' small-project example: just saying hi costs about 8.5k tokens before you've done anything. Most of that is tool definitions.</p>
+      </div>
+      <div class="panel">
+        <h3>Grows with every turn</h3>
+        <ul class="plain">
+          <li><strong>Messages</strong>: your prompts, Bob's replies, file reads, command output, <code class="inline">@</code> mentions</li>
+        </ul>
+        <p style="font-size:13px;color:#57606a;margin-top:8px">In a short chat, fixed overhead dominates. Once Bob reads files and runs tools, <strong>Messages</strong> becomes the largest slice, and it never shrinks on its own.</p>
+      </div>
+    </div>
+
+    <div class="callout"><strong>Number check.</strong> The Bob docs state the cap as <strong>270,000 tokens</strong> on the context-window page and 200,000 in one tutorial; this varies by version. About 20k is typically reserved for Bob's next reply. Look at the <strong>token usage indicator</strong> in the top right of your Bob panel; hover or click it for the breakdown.</div>
+
+    <h3>Try it: a task filling up</h3>
+    <p>Everything below is a simulation with <em>illustrative</em> numbers (starting from the docs' small-project baseline), to build intuition. It is not Bob's real accounting.</p>
+
+    <div class="sim" id="sim">
+      <div class="sim-top">
+        <span class="task" id="sim-task">Task 1</span>
+        <span class="meter" id="sim-meter" role="status" aria-live="polite"></span>
+      </div>
+      <div class="track" id="sim-track" role="img" aria-label="Context window usage"></div>
+      <div class="legend" id="sim-legend"></div>
+      <div class="sim-grid">
+        <div class="btns" role="group" aria-label="Simulator actions">
+          <button type="button" class="pri" data-act="prompt">💬 Send a prompt</button>
+          <button type="button" data-act="read">📄 Ask Bob to read many files</button>
+          <button type="button" data-act="cmd">⌨️ Run a command with big output</button>
+          <button type="button" data-act="mcp">🔌 Connect an MCP server</button>
+          <button type="button" data-act="rule">📏 Add a long rules file</button>
+          <button type="button" class="sec" data-act="condense">🗜️ Condense now</button>
+          <button type="button" class="sec" data-act="newtask">＋ Start a new task</button>
+          <button type="button" class="sec" data-act="reset">Reset demo</button>
+        </div>
+        <div>
+          <div class="logbox"><h4>What's in this task's memory</h4><ol id="sim-log" aria-live="polite"></ol></div>
+          <p class="cost" id="sim-cost"></p>
+        </div>
+      </div>
+    </div>
+
+    <h3>What to take from the simulator</h3>
+    <ul class="plain">
+      <li><strong>Condensation is lossy.</strong> When the window nears its limit, Bob keeps recent and relevant context, summarizes or drops older parts, and keeps system instructions, tool definitions, rules and skills. Notice the early messages that get crossed out: details from early in a long chat may not survive.</li>
+      <li><strong>A new task is a clean slate.</strong> Click <strong>+</strong> (New task) in the Bob panel. Messages start empty again, but your project rules, MCP servers and skills load in again. The old conversation stays in history; it is simply not part of the new window.</li>
+      <li><strong>Cost follows size.</strong> Each message re-sends the full active context, including fixed overhead, so long threads get slower and use more Bobcoins per prompt.</li>
+      <li><strong>Long threads can get worse, not just bigger.</strong> Abandoned plans, stale file contents and old errors pile up and can steer Bob wrongly (the docs call this context poisoning). Symptoms: repeated suggestions, wrong tool use, fixes that don't stick.</li>
+    </ul>
+
+    <h3>Habits that keep Bob sharp</h3>
+    <table class="grid">
+      <thead><tr><th>Do</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>Start a new task when the goal changes</td><td>Drops stale messages; fixed overhead reloads automatically</td></tr>
+        <tr><td>Point at files with <code class="inline">@</code> instead of "read the whole repo"</td><td>Targeted context beats broad context</td></tr>
+        <tr><td>Keep rules and <code class="inline">AGENTS.md</code> short</td><td>They are paid for on every message</td></tr>
+        <tr><td>Connect only the MCP servers and skills this work needs</td><td>Each one adds tool descriptions to the fixed overhead. Prefer project-scoped MCP over global</td></tr>
+        <tr><td>Break big jobs into small, reviewable steps</td><td>Smaller diffs, fewer wrong turns, easier to undo</td></tr>
+        <tr><td>Put constraints you'd repeat into a rule instead of the prompt</td><td>Prompts live in Messages and can be condensed away; rules are preserved</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- MCP -->
+  <section class="block" id="mcp" aria-labelledby="mcp-h">
+    <h2 class="section-title" id="mcp-h">4 · Connecting to MCP servers</h2>
+    <h2 class="big">Give Bob hands outside your repo</h2>
+    <p class="lede"><strong>MCP</strong> (Model Context Protocol) is an open standard for exposing tools and data to an AI. An MCP server might wrap a database, a ticketing system, a campus data feed, or a docs search. Once connected, Bob can call its tools instead of guessing.</p>
+
+    <ol class="steps">
+      <li><strong>Pick how the server runs (the transport).</strong> Local on your machine, or remote over HTTP. See the tabs below.</li>
+      <li><strong>Open the config.</strong> In the Bob panel click the <strong>Settings</strong> (gear) icon → <strong>MCP</strong> tab → <strong>Edit Project MCP</strong> (creates <code class="inline">.bob/mcp.json</code> in your project) or <strong>Edit Global MCP</strong> (<code class="inline">~/.bob/mcp.json</code>, all projects).</li>
+      <li><strong>Add the server</strong> under <code class="inline">mcpServers</code>, using one of the formats below. Save the file; Bob picks up changes.</li>
+      <li><strong>Check the MCP tab.</strong> The server should show as connected, with its tools listed. If not, see troubleshooting.</li>
+      <li><strong>Use it.</strong> Ask for something only the tool can answer. Bob shows the tool call and its result; open it and read what came back.</li>
+    </ol>
+
+    <h3>Choose a transport</h3>
+    <div class="tabs" role="tablist" aria-label="MCP transport types" id="mcp-tabs">
+      <button class="tab" role="tab" id="mtab-stdio" aria-controls="mpanel-stdio" aria-selected="true" data-m="stdio">Local (STDIO)</button>
+      <button class="tab" role="tab" id="mtab-http" aria-controls="mpanel-http" aria-selected="false" data-m="http" tabindex="-1">Remote (Streamable HTTP)</button>
+      <button class="tab" role="tab" id="mtab-sse" aria-controls="mpanel-sse" aria-selected="false" data-m="sse" tabindex="-1">Remote (SSE, legacy)</button>
+    </div>
+    <div class="tabpanel" role="tabpanel" id="mpanel-stdio" aria-labelledby="mtab-stdio">
+      <p>Bob starts the server as a child process on your machine. Lowest latency, nothing exposed to the network, simplest setup. <strong>Best default for local prototypes.</strong></p>
+      <div class="code">
+        <div class="label">.bob/mcp.json</div>
+<pre>{
+  "mcpServers": {
+    "wvu-campus": {
+      "command": "node",
+      "args": ["${workspaceFolder}/wvu-campus-mcp/build/index.js"],
+      "env": { "SOME_SETTING": "value" }
+    }
+  }
+}</pre>
+        <button class="copy" type="button" data-copy="mcp-stdio" aria-label="Copy STDIO example">Copy</button>
+      </div>
+      <p style="font-size:13px;color:#57606a"><code class="inline">command</code> is required (<code class="inline">node</code>, <code class="inline">python</code>, <code class="inline">npx</code>…). Optional: <code class="inline">args</code>, <code class="inline">cwd</code>, <code class="inline">env</code>, <code class="inline">alwaysAllow</code>, <code class="inline">disabled</code>. Many published servers run with <code class="inline">"command": "npx", "args": ["-y", "&lt;package&gt;"]</code>.</p>
+    </div>
+    <div class="tabpanel" role="tabpanel" id="mpanel-http" aria-labelledby="mtab-http" hidden>
+      <p>The server runs somewhere else and Bob connects by URL. This is the modern standard for remote servers: it can be shared by many users and centrally managed.</p>
+      <div class="code">
+        <div class="label">.bob/mcp.json</div>
+<pre>{
+  "mcpServers": {
+    "campus-data": {
+      "type": "streamable-http",
+      "url": "https://mcp.example.com/mcp",
+      "headers": { "Authorization": "Bearer ${env:CAMPUS_MCP_TOKEN}" }
+    }
+  }
+}</pre>
+        <button class="copy" type="button" data-copy="mcp-http" aria-label="Copy Streamable HTTP example">Copy</button>
+      </div>
+      <p style="font-size:13px;color:#57606a"><code class="inline">url</code> is required; <code class="inline">headers</code> carries auth. The URL above is a placeholder; use your own server's endpoint.</p>
+    </div>
+    <div class="tabpanel" role="tabpanel" id="mpanel-sse" aria-labelledby="mtab-sse" hidden>
+      <p>The older remote protocol. Still supported, but the docs recommend <strong>Streamable HTTP for anything new</strong>. You will mostly meet this when connecting to an existing server that only offers SSE.</p>
+      <div class="code">
+        <div class="label">.bob/mcp.json</div>
+<pre>{
+  "mcpServers": {
+    "legacy-server": {
+      "url": "https://mcp.example.com/sse",
+      "headers": { "Authorization": "Bearer ${env:LEGACY_MCP_TOKEN}" }
+    }
+  }
+}</pre>
+        <button class="copy" type="button" data-copy="mcp-sse" aria-label="Copy SSE example">Copy</button>
+      </div>
+    </div>
+
+    <table class="grid">
+      <thead><tr><th></th><th>STDIO</th><th>Streamable HTTP / SSE</th></tr></thead>
+      <tbody>
+        <tr><th>Runs</th><td>On your machine only</td><td>Local or remote</td></tr>
+        <tr><th>Users</th><td>One client</td><td>Many clients</td></tr>
+        <tr><th>Setup</th><td>Simple</td><td>Needs an HTTP server</td></tr>
+        <tr><th>Security</th><td>No network exposure</td><td>You must secure it explicitly</td></tr>
+        <tr><th>Updates</th><td>Each user updates their own</td><td>Update once, centrally</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Project vs. global config</h3>
+    <ul class="plain">
+      <li><strong>Project</strong> <code class="inline">.bob/mcp.json</code>: lives with the repo, shareable with your team. If the same server name exists in both places, <strong>project wins</strong>.</li>
+      <li><strong>Global</strong> <code class="inline">~/.bob/mcp.json</code>: available in every workspace.</li>
+      <li>Because every connected server adds to your fixed context overhead, <strong>prefer project config</strong> and only connect what the current work needs. There is also a setting to turn MCP servers off entirely, which removes their instructions from Bob's prompt.</li>
+    </ul>
+
+    <h3>Staying safe</h3>
+    <div class="callout warn">
+      <strong>MCP tools can read data and take actions. Treat servers like you treat software you install.</strong>
+      <ul class="plain">
+        <li>Connect <strong>only servers you trust</strong>. The docs rate auto-approving MCP tools as a medium-high risk.</li>
+        <li>Tool auto-approval is <strong>off by default</strong>. You approve each call, or tick <strong>Always allow</strong> per tool once you trust it. Don't blanket-approve a server you haven't read.</li>
+        <li><strong>Never put real secrets in a file you commit.</strong> Reference environment variables instead, like <code class="inline">${env:NAME}</code> in the examples (and <code class="inline">${workspaceFolder}</code> for paths). Check your Bob version supports this before relying on it.</li>
+        <li>For this event: <strong>no real student data</strong> goes through any server. Use the simulated data provided.</li>
+      </ul>
+    </div>
+
+    <h3>Troubleshooting</h3>
+    <table class="grid">
+      <thead><tr><th>Symptom</th><th>Try</th></tr></thead>
+      <tbody>
+        <tr><td>Server not listed, or shows an error</td><td>Check the JSON is valid (a missing comma is the usual culprit). Confirm the <code class="inline">command</code> exists on your PATH (<code class="inline">node -v</code>).</td></tr>
+        <tr><td>STDIO server won't start</td><td>Run the exact <code class="inline">command</code> + <code class="inline">args</code> in a terminal. Use absolute paths if <code class="inline">${workspaceFolder}</code> isn't expanding in your version. For servers you write, log to <em>stderr</em>, never stdout: stdout is the protocol channel.</td></tr>
+        <tr><td>Connected, but Bob never uses the tools</td><td>Make sure you are in a mode that has MCP access, and that MCP servers are enabled in settings. Ask directly: "use the &lt;server&gt; tool to…".</td></tr>
+        <tr><td>Remote server returns 401/403</td><td>Check the header, and that the environment variable is set in the same environment Bob was launched from. Restart Bob after changing it.</td></tr>
+        <tr><td>Bob feels slow or forgetful after adding servers</td><td>Open the context breakdown. Large <strong>MCP Tools</strong> means too many servers or tools; disable what you aren't using.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout info"><strong>In the lab</strong> you'll connect a small local STDIO server of <em>simulated</em> WVU course, travel-time and study-room data, then ask Bob questions only its tools can answer. Want to write your own server? Ask Bob: <em>"Build me an MCP server that exposes …"</em>; it can scaffold, build and register one for you.</div>
+  </section>
+
+  <!-- RECAP -->
+  <section class="block" id="recap" aria-labelledby="recap-h">
+    <h2 class="section-title" id="recap-h">Cheat sheet</h2>
+    <table class="grid">
+      <thead><tr><th>If you want to…</th><th>Use</th><th>Where</th></tr></thead>
+      <tbody>
+        <tr><td>Think before building</td><td>Plan mode</td><td>Mode selector</td></tr>
+        <tr><td>Make or change code</td><td>Agent / Code mode</td><td>Mode selector</td></tr>
+        <tr><td>Understand code safely</td><td>Ask mode</td><td>Mode selector</td></tr>
+        <tr><td>Create a specialist with limited powers</td><td>Custom mode</td><td><code class="inline">.bob/custom_modes.yaml</code></td></tr>
+        <tr><td>Stop repeating the same instructions</td><td>Rules</td><td><code class="inline">.bob/rules/*.md</code></td></tr>
+        <tr><td>Teach Bob a new project fast</td><td><code class="inline">/init</code></td><td>Type in the chat</td></tr>
+        <tr><td>Get a clean memory</td><td>New task</td><td><strong>+</strong> in the Bob panel</td></tr>
+        <tr><td>See what's using your context</td><td>Token usage indicator</td><td>Top right of the Bob panel</td></tr>
+        <tr><td>Connect Bob to data or systems</td><td>MCP server</td><td><code class="inline">.bob/mcp.json</code></td></tr>
+      </tbody>
+    </table>
+    <div class="callout"><strong>Always:</strong> review what Bob produces. It is a fast, capable collaborator, not an authority. Read the diff, run the code, and be honest about what is real and what is simulated.</div>
+  </section>
+
+</main>
+<footer>Made with IBM Bob · Based on IBM Bob documentation · All examples use simulated data</footer>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var el = function (tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text !== undefined) n.textContent = text; return n; };
+
+  /* header shadow + active nav */
+  var header = $("top-header");
+  window.addEventListener("scroll", function () { header.classList.toggle("scrolled", window.scrollY > 4); }, { passive: true });
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll(".nav a"));
+  if ("IntersectionObserver" in window) {
+    var spy = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (e.isIntersecting) navLinks.forEach(function (a) { a.classList.toggle("active", a.getAttribute("href") === "#" + e.target.id); });
+      });
+    }, { rootMargin: "-30% 0px -60% 0px" });
+    document.querySelectorAll("section.block").forEach(function (s) { spy.observe(s); });
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("visible"); io.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+    document.querySelectorAll(".fade-up").forEach(function (n) { io.observe(n); });
+  } else {
+    document.querySelectorAll(".fade-up").forEach(function (n) { n.classList.add("visible"); });
+  }
+
+  /* generic accessible tabs */
+  function wireTabs(rootId, onSelect) {
+    var root = $(rootId);
+    var tabs = Array.prototype.slice.call(root.querySelectorAll('[role="tab"]'));
+    function select(tab, focus) {
+      tabs.forEach(function (t) {
+        var on = t === tab;
+        t.setAttribute("aria-selected", on);
+        t.tabIndex = on ? 0 : -1;
+        $(t.getAttribute("aria-controls")).hidden = !on;
+      });
+      if (focus) tab.focus();
+      if (onSelect) onSelect(tab);
+    }
+    tabs.forEach(function (t, i) {
+      t.addEventListener("click", function () { select(t); });
+      t.addEventListener("keydown", function (e) {
+        var k = e.key, j = -1;
+        if (k === "ArrowRight") j = (i + 1) % tabs.length;
+        else if (k === "ArrowLeft") j = (i - 1 + tabs.length) % tabs.length;
+        else if (k === "Home") j = 0;
+        else if (k === "End") j = tabs.length - 1;
+        if (j >= 0) { e.preventDefault(); select(tabs[j], true); }
+      });
+    });
+    if (onSelect) onSelect(tabs[0]);
+  }
+
+  /* mode matrix */
+  var TOOLS = ["Read", "Edit", "Execute", "MCP", "Skill", "Todo", "Subtask", "Subagent", "Mode"];
+  var MODES = {
+    plan:  { name: "Plan",           tools: ["Read", "Edit", "MCP", "Skill", "Subagent", "Mode"] },
+    agent: { name: "Agent / Code",   tools: ["Read", "Edit", "Execute", "MCP", "Skill", "Todo", "Subtask", "Subagent", "Mode"] },
+    ask:   { name: "Ask",            tools: ["Read", "MCP", "Skill", "Subagent", "Mode"] }
+  };
+  var matrix = $("mode-matrix");
+  function drawMatrix(sel) {
+    matrix.replaceChildren();
+    var thead = el("thead"), hr = el("tr");
+    hr.append(el("th", "", "Mode"));
+    TOOLS.forEach(function (t) { hr.append(el("th", "", t)); });
+    thead.append(hr); matrix.append(thead);
+    var tb = el("tbody");
+    Object.keys(MODES).forEach(function (k) {
+      var tr = el("tr", k === sel ? "hl" : "");
+      tr.append(el("th", "", MODES[k].name));
+      TOOLS.forEach(function (t) {
+        var has = MODES[k].tools.indexOf(t) >= 0;
+        var td = el("td", has ? "yes" : "no", has ? "✓" : "–");
+        td.setAttribute("aria-label", t + ": " + (has ? "allowed" : "not available"));
+        tr.append(td);
+      });
+      tb.append(tr);
+    });
+    matrix.append(tb);
+  }
+  wireTabs("mode-tabs", function (tab) { drawMatrix(tab.dataset.mode); });
+  wireTabs("mcp-tabs");
+
+  /* rules demo */
+  var MOCK_OFF = [["Uses WVU colors", false], ["Labels data as simulated", false], ["Explains student privacy", false], ["Labeled, keyboard-friendly inputs", false]];
+  var MOCK_ON  = [["Uses WVU colors", true], ["Labels data as simulated", true], ["Explains student privacy", true], ["Labeled, keyboard-friendly inputs", true]];
+  var sw = $("rules-switch");
+  function drawMock() {
+    var on = sw.getAttribute("aria-checked") === "true";
+    $("mock").classList.toggle("on", on);
+    $("mock-pill").hidden = !on;
+    $("rules-state").textContent = "Rules file: " + (on ? "ON" : "OFF");
+    var ul = $("mock-list"); ul.replaceChildren();
+    (on ? MOCK_ON : MOCK_OFF).forEach(function (r) {
+      ul.append(el("li", r[1] ? "hit" : "miss", (r[1] ? "✓ " : "✗ ") + r[0]));
+    });
+  }
+  sw.addEventListener("click", function () { sw.setAttribute("aria-checked", sw.getAttribute("aria-checked") !== "true"); drawMock(); });
+  drawMock();
+
+  /* copy buttons */
+  var SNIPPETS = {};
+  document.querySelectorAll(".copy").forEach(function (b) {
+    SNIPPETS[b.dataset.copy] = b.parentNode.querySelector("pre").textContent;
+    b.addEventListener("click", function () {
+      var text = SNIPPETS[b.dataset.copy];
+      var done = function () { var old = b.textContent; b.textContent = "Copied"; setTimeout(function () { b.textContent = old; }, 1400); };
+      if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(text).then(done, fallback); } else { fallback(); }
+      function fallback() {
+        var ta = el("textarea"); ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+        document.body.append(ta); ta.select();
+        try { document.execCommand("copy"); done(); } catch (e) { b.textContent = "Select & copy"; }
+        ta.remove();
+      }
+    });
+  });
+
+  /* context simulator (illustrative numbers) */
+  var CAP = 270000, RESERVED = 20000, AUTO_AT = 190000;
+  var BASE = { system: 1500, tools: 5100, mcp: 0, rules: 830, skills: 454, messages: 590 };
+  var CATS = [
+    { k: "system",   label: "System prompt",    color: "#002855" },
+    { k: "tools",    label: "Tool definitions", color: "#4a6fa5" },
+    { k: "mcp",      label: "MCP tools",        color: "#0b6e4f" },
+    { k: "rules",    label: "Rules",            color: "#eaaa00" },
+    { k: "skills",   label: "Skills",           color: "#8a5cd8" },
+    { k: "messages", label: "Messages",         color: "#c2410c" }
+  ];
+  var PROMPTS = [
+    "“Use WVU Blue and Old Gold everywhere”",
+    "“Build a registration page”",
+    "“Add a travel-time warning”",
+    "“Make the table sortable”",
+    "“Why is the footer overlapping?”",
+    "“Add a privacy section”",
+    "“Rename the CSS classes”"
+  ];
+  var S, LOG, TASK, HIST, NEXT, PI, MCPN, RULEN;
+  var fmt = function (n) { return n >= 1000 ? (n / 1000).toFixed(1) + "k" : String(n); };
+  var used = function () { return CATS.reduce(function (a, c) { return a + S[c.k]; }, 0); };
+
+  function reset() { S = Object.assign({}, BASE); LOG = []; TASK = 1; HIST = 0; NEXT = 0; PI = 0; MCPN = 0; RULEN = 0; render(); }
+  function entry(text, kind) { LOG.push({ id: NEXT++, text: text, kind: kind || "msg", sum: false }); }
+  function summarizeOld(keep) {
+    var msgs = LOG.filter(function (e) { return e.kind === "msg" && !e.sum; });
+    msgs.slice(0, Math.max(0, msgs.length - keep)).forEach(function (e) { e.sum = true; });
+  }
+  function condense(auto) {
+    S.messages = Math.max(BASE.messages, Math.round(S.messages * 0.3));
+    summarizeOld(2);
+    entry(auto ? "Window nearly full → Bob condensed older messages automatically" : "You condensed: older messages summarized", "note");
+  }
+  function afterAction() { if (used() >= AUTO_AT) condense(true); render(); }
+
+  var ACTS = {
+    prompt: function () { var t = PROMPTS[PI++ % PROMPTS.length]; S.messages += 1800; entry("You: " + t); },
+    read:   function () { S.messages += 14000; entry("Bob read 12 files"); },
+    cmd:    function () { S.messages += 9000; entry("Command output (test run, 400 lines)"); },
+    mcp:    function () { MCPN++; S.mcp += 3200; entry("MCP server #" + MCPN + " connected (+tool descriptions, every message)", "note"); },
+    rule:   function () { RULEN++; S.rules += 2500; entry("Long rules file #" + RULEN + " added (re-sent every message)", "note"); },
+    condense: function () { condense(false); },
+    newtask: function () {
+      HIST++; TASK++;
+      S.messages = BASE.messages; LOG = []; NEXT = 0;
+      entry("New task. Fresh messages. Rules, MCP and skills reloaded", "note");
+    },
+    reset: function () { reset(); return "skip"; }
+  };
+  document.querySelectorAll("#sim [data-act]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var r = ACTS[b.dataset.act]();
+      if (r !== "skip") afterAction();
+    });
+  });
+
+  function render() {
+    var u = used(), avail = Math.max(0, CAP - u - RESERVED), pct = Math.round(u / CAP * 100);
+    $("sim-task").textContent = "Task " + TASK + (HIST ? "  ·  " + HIST + " earlier task" + (HIST > 1 ? "s" : "") + " in history" : "");
+    $("sim-meter").textContent = pct + "% full · " + fmt(u) + " / " + fmt(CAP) + " tokens · " + fmt(avail) + " available";
+    var tr = $("sim-track"); tr.replaceChildren();
+    var parts = CATS.map(function (c) { return { c: c.color, v: S[c.k] }; });
+    parts.push({ c: null, v: avail, free: true });
+    parts.push({ c: null, v: RESERVED, res: true });
+    parts.forEach(function (p) {
+      var d = el("div", "seg" + (p.res ? " reserved" : ""));
+      d.style.flexBasis = (p.v / CAP * 100) + "%";
+      d.style.flexGrow = "0"; d.style.flexShrink = "0";
+      if (p.c) d.style.background = p.c;
+      tr.append(d);
+    });
+    tr.setAttribute("aria-label", "Context window " + pct + " percent full");
+    var lg = $("sim-legend"); lg.replaceChildren();
+    CATS.concat([{ label: "Available", color: "#fff" }, { label: "Reserved for reply", color: "repeating-linear-gradient(45deg,#e5e7eb,#e5e7eb 3px,#f7f8fa 3px,#f7f8fa 6px)" }]).forEach(function (c) {
+      var item = el("div"); var sw2 = el("span", "sw"); sw2.style.background = c.color;
+      item.append(sw2);
+      var val = S[c.k];
+      item.append(document.createTextNode(c.label + (val !== undefined ? " · " + fmt(val) : c.label === "Available" ? " · " + fmt(avail) : " · " + fmt(RESERVED))));
+      lg.append(item);
+    });
+    var ol = $("sim-log"); ol.replaceChildren();
+    LOG.forEach(function (e) {
+      var li = el("li", e.kind === "note" ? "note" : (e.sum ? "sum" : ""));
+      li.append(el("span", "", e.text));
+      if (e.sum) li.append(el("span", "tag", "summarized – details may be lost"));
+      ol.append(li);
+    });
+    ol.parentNode.scrollTop = ol.parentNode.scrollHeight;
+    $("sim-cost").textContent = "Your next message re-sends all " + fmt(u) + " tokens of this task: " + fmt(u - S.messages) + " fixed overhead + " + fmt(S.messages) + " messages.";
+  }
+  reset();
+})();
+</script>
+</body>
+</html>
