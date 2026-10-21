@@ -19,35 +19,35 @@
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; scroll-padding-top: 84px; }
-    body { font-family: -apple-system, "Segoe UI", system-ui, sans-serif; font-size: 15px; line-height: 1.6; color: #1f2328; background: #fff; }
+    body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 15px; line-height: 1.6; color: #1f2328; background: #fff; }
     a { color: var(--accent); }
     a:hover { text-decoration: underline; }
     :focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
     .page-wrap { max-width: 1000px; margin: 0 auto; padding: 0 40px; }
 
     /* Header */
-    .header { border-bottom: 1px solid #e5e7eb; padding: 14px 0; position: sticky; top: 0; background: rgba(255,255,255,0.94); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 100; transition: box-shadow .2s ease; }
-    .header.scrolled { box-shadow: 0 1px 12px rgba(0,0,0,0.07); }
+    .header { border-bottom: 3px solid var(--gold); padding: 14px 0; position: sticky; top: 0; background: var(--accent); z-index: 100; transition: box-shadow .2s ease; }
+    .header.scrolled { box-shadow: 0 2px 16px rgba(0,0,0,0.22); }
     .header-inner { max-width: 1000px; margin: 0 auto; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
-    .brand { font-weight: 600; color: var(--accent); white-space: nowrap; }
+    .brand { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 700; color: #fff; white-space: nowrap; letter-spacing: .01em; }
     .brand span { color: var(--gold); }
     .nav { display: flex; gap: 18px; flex-wrap: wrap; justify-content: flex-end; }
-    .nav a { font-size: 13px; font-weight: 500; color: #57606a; text-decoration: none; padding: 4px 0; border-bottom: 2px solid transparent; }
-    .nav a:hover, .nav a.active { color: var(--accent); border-bottom-color: var(--gold); }
+    .nav a { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.75); text-decoration: none; padding: 4px 0; border-bottom: 2px solid transparent; }
+    .nav a:hover, .nav a.active { color: #fff; border-bottom-color: var(--gold); }
 
     /* Hero */
     @keyframes hero-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
     .hero { padding: 56px 0 24px; max-width: 860px; }
-    .hero-eyebrow { font-size: 13px; color: var(--accent); font-weight: 500; margin-bottom: 10px; animation: hero-in .4s cubic-bezier(.22,1,.36,1) .05s both; }
-    .hero h1 { font-size: 52px; font-weight: 300; line-height: 1.1; margin-bottom: 16px; animation: hero-in .45s cubic-bezier(.22,1,.36,1) .12s both; }
+    .hero-eyebrow { font-size: 13px; color: var(--accent); font-weight: 700; letter-spacing: .04em; margin-bottom: 10px; animation: hero-in .4s cubic-bezier(.22,1,.36,1) .05s both; }
+    .hero h1 { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 52px; font-weight: 300; line-height: 1.1; margin-bottom: 16px; animation: hero-in .45s cubic-bezier(.22,1,.36,1) .12s both; }
     .hero p { font-size: 16px; color: #57606a; max-width: 680px; animation: hero-in .45s cubic-bezier(.22,1,.36,1) .18s both; }
 
     /* Sections */
     section.block { padding-top: 8px; }
-    .section-title { font-size: 14px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: .04em; margin: 56px 0 8px; }
-    h2.big { font-size: 30px; font-weight: 300; line-height: 1.2; margin-bottom: 12px; }
+    .section-title { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: .07em; margin: 56px 0 8px; }
+    h2.big { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 30px; font-weight: 300; line-height: 1.2; margin-bottom: 12px; }
     .lede { color: #57606a; max-width: 720px; margin-bottom: 24px; }
-    h3 { font-size: 16px; font-weight: 600; margin: 24px 0 8px; }
+    h3 { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 700; margin: 24px 0 8px; }
     p + p { margin-top: 10px; }
     ul.plain { margin: 8px 0 0 20px; }
     ul.plain li { margin-bottom: 4px; }
