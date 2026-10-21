@@ -97,4 +97,8 @@ export const skeleton = (n = 3) => h("div", { class: "stack", "aria-busy": "true
 export const errorBox = (msg, retry) => h("div", { class: "callout warn", role: "alert" }, h("strong", { text: "Something went wrong. " }), msg, " ",
   retry ? h("button", { class: "btn ghost", type: "button", onclick: retry, text: "Try again" }) : null);
 export const hero = (eyebrow, title, lede) => h("section", { class: "hero" }, h("p", { class: "hero-eyebrow", text: eyebrow }), h("h1", { text: title }), lede ? h("p", { text: lede }) : null);
+export function repoLink(url, text) {
+  if (!/^https:\/\/github\.com\/[\w.-]+\/[\w.-]+$/.test(url || "")) return null;
+  return h("a", { href: url, target: "_blank", rel: "noopener noreferrer", class: "repo", text: text || url.replace("https://github.com/", "") + " ↗", "aria-label": "GitHub repository " + url.replace("https://github.com/", "") + " (opens in a new tab)" });
+}
 export function shortDate(iso) { try { return new Date(iso).toLocaleString([], { dateStyle: "medium", timeStyle: "short" }); } catch (e) { return ""; } }

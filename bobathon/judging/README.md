@@ -19,7 +19,7 @@ Options: `JUDGE_PASSWORD` (default `admin`; change it before the real event), `P
 
 1. Organizer tab → sign in with the PIN.
 2. **Reveal & settings → Start a clean event** (removes the sample data).
-3. **Projects**: add each entry. **Judges** is optional: judges add themselves (below), but you can pre-approve names.
+3. **Projects**: add each entry (name and team are required; members, description and a GitHub repo link are optional). **Judges** is optional: judges add themselves (below), but you can pre-approve names.
 4. Share the URL and the judge password with your judges.
 
 ## During the event
@@ -29,6 +29,10 @@ Options: `JUDGE_PASSWORD` (default `admin`; change it before the real event), `P
 | Judges | Judge | A popup asks for the judge password, then their name. That adds them to the approved list and unlocks the scorecard. They pick a project, ask the 9 questions, rate 5 criteria (1–10) and submit. Submitting locks that judge/project pair and grays the project out in their dropdown. |
 | Organizer | Organizer → Progress | See Pending / Scored / Completed per team and which judges are in. Live standings are visible here even while the public board is hidden. |
 | Projector | Scoreboard | Stays on "Judging in progress" (no scores, ranks or totals) until you reveal. |
+
+## GitHub repo field
+
+Optional on each project. Paste `github.com/owner/repo` in any common form (with or without `https://`, `www.`, `.git`, a trailing slash, or a `/tree/...` path) and it is stored as the clean `https://github.com/owner/repo`. Anything that isn't a GitHub repo link is rejected, so judges and the projector can only ever see safe links. The link opens in a new tab on the judge's team card, the organizer's project list and the 1st/2nd place cards. It is not checked that the repo exists or is public.
 
 ## Judge access
 

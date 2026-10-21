@@ -273,3 +273,6 @@ footer { border-top: 1px solid #e5e7eb; padding: 20px 0; text-align: center; fon
 
 /* Scored projects stay visible but grayed out in the judge's dropdown */
 #sel-project option:disabled, #sel-project option.scored { color: #8c959f; background: #f0f1f3; }
+
+a.repo { color: var(--accent); font-weight: 600; word-break: break-all; }
+.place a.repo { color: var(--gold); }

@@ -49,7 +49,7 @@ function sampleData() {
     ["Financial Aid Checklist", "Team Gold & Blue", ["Casey Lindgren", "Jamie Park", "Devon Okafor", "Elliot Marsh"], "A step-by-step aid checklist that explains each form and its deadline."],
     ["Dorm Maintenance Reporter", "Team Fix It Fast", ["Rowan Pierce", "Sasha Bell"], "Residents report and track maintenance requests with photo-free, privacy-safe descriptions."],
     ["Study Room Booker", "Team Quiet Please", ["Harper Vance", "Noel Iyer", "Blake Santos"], "Real-time study room availability with one-tap booking and reminders."],
-  ].map((p) => ({ id: id("p"), name: p[0], team: p[1], members: p[2], description: p[3] }));
+  ].map((p, i) => ({ id: id("p"), name: p[0], team: p[1], members: p[2], description: p[3], repo: i === 0 ? "https://github.com/wvu-sample-org/course-planner-lite" : i === 3 ? "https://github.com/wvu-sample-org/aid-checklist" : "" }));
   const judges = ["Dr. Sample Judge A", "Prof. Sample Judge B", "Sample Judge C", "Sample Judge D"].map((n) => ({ id: id("j"), name: n }));
 
   // Deterministic sample scores so the board has something to show during testing.
@@ -117,7 +117,7 @@ function ranked() {
   list.forEach((x, i) => { if (prev === null || x.st._raw !== prev) rank = i + 1; prev = x.st._raw; x.rank = rank; });
   return list;
 }
-const publicProject = (p) => ({ id: p.id, name: p.name, team: p.team, members: p.members, description: p.description });
+const publicProject = (p) => ({ id: p.id, name: p.name, team: p.team, members: p.members, description: p.description, repo: p.repo || "" });
 const progress = () => db.projects.map((p) => { const st = projectStats(p); return { projectId: p.id, judgesDone: st.judgesDone, judgesTotal: st.judgesTotal, status: statusOf(st) }; });
 
 /* ----------------------------------------------------------- validation */
@@ -132,6 +132,15 @@ function str(v, label, { min = 0, max = MAX_TEXT, required = false } = {}) {
   if (v.length > max) throw bad(label + " must be " + max + " characters or fewer.", [label]);
   return v;
 }
+// Optional GitHub repo. Accepts github.com/owner/repo (with or without https://, .git, trailing slash, /tree/...)
+// and always stores the clean https://github.com/owner/repo form, so nothing else can ever end up in a link.
+function parseRepo(v) {
+  v = str(v, "GitHub repo", { max: 200 });
+  if (!v) return "";
+  const m = v.match(/^(?:https?:\/\/)?(?:www\.)?github\.com\/([A-Za-z0-9](?:[A-Za-z0-9-]{0,38}))\/([A-Za-z0-9._-]{1,100}?)(?:\.git)?(?:[\/?#].*)?$/);
+  if (!m || m[2] === "." || m[2] === ".." || m[2].startsWith(".git")) throw bad("GitHub repo must look like https://github.com/owner/repo.", ["GitHub repo"]);
+  return "https://github.com/" + m[1] + "/" + m[2];
+}
 function parseProject(b) {
   const members = Array.isArray(b.members) ? b.members : typeof b.members === "string" ? b.members.split(/[\n,]/) : [];
   const clean = members.map((m) => str(m, "Team member", { max: 80 })).filter(Boolean);
@@ -141,6 +150,7 @@ function parseProject(b) {
     team: str(b.team, "Team name", { required: true, max: 100 }),
     members: clean,
     description: str(b.description, "Description", { max: 600 }),
+    repo: parseRepo(b.repo),
   };
 }
 function parseScore(b, judge) {

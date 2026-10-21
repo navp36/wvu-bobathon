@@ -1,4 +1,4 @@
-import { api, admin, store, refresh, h, clear, toast, confirmDialog, hero, fmt, statusTag, errorBox, skeleton } from "./core.js";
+import { api, admin, store, refresh, repoLink, h, clear, toast, confirmDialog, hero, fmt, statusTag, errorBox, skeleton } from "./core.js";
 
 let host, body, tab = "progress", ov = null, editing = null;
 
@@ -89,6 +89,7 @@ function projects(p) {
     team: h("input", { type: "text", id: "pf-team", maxlength: "100", autocomplete: "off" }),
     members: h("textarea", { id: "pf-members", rows: "3", placeholder: "One per line or comma-separated. Names only, no contact details.", maxlength: "900" }),
     description: h("textarea", { id: "pf-desc", rows: "3", maxlength: "600" }),
+    repo: h("input", { type: "text", id: "pf-repo", maxlength: "200", autocomplete: "off", inputmode: "url", placeholder: "https://github.com/owner/repo", "aria-describedby": "pf-repo-help" }),
   };
   const err = h("div", { class: "err-text", role: "alert" });
   const title = h("h3", { text: "Add a project" });
@@ -102,7 +103,7 @@ function projects(p) {
     if (!fields.name.value.trim()) bad.push([fields.name, "Project name is required."]);
     if (!fields.team.value.trim()) bad.push([fields.team, "Team name is required."]);
     if (bad.length) { bad.forEach(([f]) => f.classList.add("field-err")); err.textContent = bad.map((b) => b[1]).join(" "); bad[0][0].focus(); return; }
-    const payload = { name: fields.name.value, team: fields.team.value, members: fields.members.value, description: fields.description.value };
+    const payload = { name: fields.name.value, team: fields.team.value, members: fields.members.value, description: fields.description.value, repo: fields.repo.value };
     save.disabled = true;
     try {
       if (editing) await api("PUT", "/api/projects/" + editing, payload); else await api("POST", "/api/projects", payload);
@@ -113,19 +114,20 @@ function projects(p) {
     h("div", { class: "grid2", style: "margin-top:12px" }, h("div", {}, h("label", { for: "pf-name", text: "Project name *" }), fields.name), h("div", {}, h("label", { for: "pf-team", text: "Team name *" }), fields.team)),
     h("div", { style: "margin-top:12px" }, h("label", { for: "pf-members", text: "Team members" }), fields.members),
     h("div", { style: "margin-top:12px" }, h("label", { for: "pf-desc", text: "Project description" }), fields.description),
+    h("div", { style: "margin-top:12px" }, h("label", { for: "pf-repo", text: "GitHub repo (optional)" }), fields.repo, h("div", { class: "meta", id: "pf-repo-help", style: "margin-top:4px", text: "A public github.com link. Leave blank if the team has none." })),
     err, h("div", { class: "actions" }, save, cancel));
 
   const list = ov.projects.length ? h("div", { class: "tbl-wrap", style: "margin-top:20px" }, h("table", { class: "grid" },
     h("caption", { class: "sr", text: "Projects" }),
     h("thead", {}, h("tr", {}, ["Project", "Members", "Scores", ""].map((t) => h("th", { scope: "col", text: t })))),
     h("tbody", {}, ov.projects.map((x) => h("tr", {},
-      h("td", {}, h("strong", { text: x.name }), h("div", { class: "meta", text: x.team }), x.description ? h("div", { class: "meta", text: x.description }) : null),
+      h("td", {}, h("strong", { text: x.name }), h("div", { class: "meta", text: x.team }), x.description ? h("div", { class: "meta", text: x.description }) : null, x.repo ? h("div", { class: "meta" }, repoLink(x.repo)) : null),
       h("td", { class: "meta", text: x.members.join(", ") || "—" }),
       h("td", {}, statusTag(x.status), h("div", { class: "meta", text: x.judgesDone + "/" + x.judgesTotal })),
       h("td", {}, h("div", { class: "row" },
         h("button", { class: "btn ghost", type: "button", "aria-label": "Edit " + x.name, text: "Edit", onclick: () => {
           editing = x.id; title.textContent = "Edit project"; save.textContent = "Save changes"; cancel.hidden = false;
-          fields.name.value = x.name; fields.team.value = x.team; fields.members.value = x.members.join("\n"); fields.description.value = x.description;
+          fields.name.value = x.name; fields.team.value = x.team; fields.members.value = x.members.join("\n"); fields.description.value = x.description; fields.repo.value = x.repo || "";
           form.scrollIntoView({ behavior: "smooth", block: "center" }); fields.name.focus();
         } }),
         h("button", { class: "btn ghost danger", type: "button", "aria-label": "Delete " + x.name, text: "Delete", onclick: async () => {
@@ -134,7 +136,7 @@ function projects(p) {
           try { await api("DELETE", "/api/projects/" + x.id); toast("Project deleted."); if (editing === x.id) reset(); await loadOverview(true); render(); } catch (e) { toast(e.message, true); }
         } })))))))) : emptyState("No projects yet", "Use the form above to add the first entry.");
   p.append(form, list);
-  if (editing) { const x = ov.projects.find((q) => q.id === editing); if (x) { title.textContent = "Edit project"; save.textContent = "Save changes"; cancel.hidden = false; fields.name.value = x.name; fields.team.value = x.team; fields.members.value = x.members.join("\n"); fields.description.value = x.description; } else editing = null; }
+  if (editing) { const x = ov.projects.find((q) => q.id === editing); if (x) { title.textContent = "Edit project"; save.textContent = "Save changes"; cancel.hidden = false; fields.name.value = x.name; fields.team.value = x.team; fields.members.value = x.members.join("\n"); fields.description.value = x.description; fields.repo.value = x.repo || ""; } else editing = null; }
 }
 
 /* ---------- judges ---------- */

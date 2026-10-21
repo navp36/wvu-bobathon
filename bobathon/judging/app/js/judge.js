@@ -1,4 +1,4 @@
-import { api, store, refresh, judgeAuth, h, clear, toast, confirmDialog, hero, shortDate } from "./core.js";
+import { api, store, refresh, judgeAuth, repoLink, h, clear, toast, confirmDialog, hero, shortDate } from "./core.js";
 
 const QUESTIONS = [
   "What inspired your idea/project?",
@@ -161,6 +161,7 @@ function renderTeam() {
   picker.team.append(h("div", { class: "card white team-card" },
     h("div", { class: "who" }, h("h3", { text: p.name }), h("p", { class: "meta", text: p.team }),
       p.description ? h("p", { style: "margin-top:6px", text: p.description }) : null,
+      p.repo ? h("p", { class: "meta", style: "margin-top:6px" }, h("strong", { text: "Code: " }), repoLink(p.repo)) : null,
       p.members.length ? h("p", { class: "meta", style: "margin-top:6px" }, h("strong", { text: "Team: " }), p.members.join(", ")) : null),
     h("div", {}, mySubmitted.has(p.id) ? h("span", { class: "tag locked", text: "Already scored" }) : h("span", { class: "tag pending", text: "Not yet scored by you" }),
       prog ? h("p", { class: "meta", style: "margin-top:8px;text-align:right", text: prog.judgesDone + " of " + prog.judgesTotal + " judges done" }) : null)));

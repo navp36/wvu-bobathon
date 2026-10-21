@@ -1,4 +1,4 @@
-import { api, store, h, clear, hero, fmt, errorBox } from "./core.js";
+import { api, store, repoLink, h, clear, hero, fmt, errorBox } from "./core.js";
 
 const ORD = { 1: "1st place", 2: "Runner-up", 3: "3rd place", 4: "Honorable mention", 5: "Honorable mention" };
 const RANK_LABEL = (r) => ORD[r] || "Top " + r;
@@ -46,6 +46,7 @@ function render() {
       h("div", { class: "rk" }, pl.rank === 1 ? "🏆" : "#" + pl.rank, h("small", { text: RANK_LABEL(pl.rank) })),
       h("div", {}, h("h3", { text: pl.project.name }), h("div", { class: "tm", text: pl.project.team + (pl.project.members.length ? " · " + pl.project.members.join(", ") : "") }),
         pl.rank <= 2 && pl.project.description ? h("div", { class: "desc", text: pl.project.description }) : null,
+        pl.rank <= 2 && pl.project.repo ? h("div", { class: "desc" }, repoLink(pl.project.repo)) : null,
         h("div", { class: "crit-mini" }, s.criteria.map((c) => h("span", { text: c.name + " " + fmt(pl.criteria[c.key]) })))),
       h("div", { class: "score" }, fmt(pl.total), h("small", { text: "out of " + s.maxTotal }))));
     if (isNew && pl.rank === 1) setTimeout(confetti, 350);
