@@ -260,29 +260,34 @@
     <h2 class="big">Same Bob, different job</h2>
     <p class="lede">A mode is a persona plus a set of permissions. Switch modes with the mode selector in the Bob panel. Switching changes what Bob is good at, and just as importantly, what it is <em>not allowed to do</em>.</p>
 
-    <div class="tabs" role="tablist" aria-label="Built-in modes" id="mode-tabs">
-      <button class="tab" role="tab" id="tab-plan" aria-controls="panel-plan" aria-selected="true" data-mode="plan">Plan</button>
-      <button class="tab" role="tab" id="tab-agent" aria-controls="panel-agent" aria-selected="false" data-mode="agent" tabindex="-1">Agent / Code</button>
-      <button class="tab" role="tab" id="tab-ask" aria-controls="panel-ask" aria-selected="false" data-mode="ask" tabindex="-1">Ask</button>
-    </div>
-    <div class="tabpanel" role="tabpanel" id="panel-plan" aria-labelledby="tab-plan">
-      <p><strong>Use it before building.</strong> Design the architecture, break a problem down, write a specification. Great for new projects and complex features.</p>
-      <div class="callout"><strong>Try:</strong> <em>"Plan a single-file class registration page. What should it show, what checks should it run, and what could go wrong?"</em></div>
-    </div>
-    <div class="tabpanel" role="tabpanel" id="panel-agent" aria-labelledby="tab-agent" hidden>
-      <p><strong>Use it to make changes.</strong> Implement features, fix bugs, refactor, and run commands. It has the fullest tool access, which is why it is also the mode to be most careful with.</p>
-      <div class="callout"><strong>Name note:</strong> the Bob docs call this mode <strong>Agent</strong> on some pages and <strong>Code</strong> on others. It is the same job: the mode that writes code.</div>
-      <div class="callout"><strong>Try:</strong> <em>"Build the plan as registration.html in this folder."</em></div>
-    </div>
-    <div class="tabpanel" role="tabpanel" id="panel-ask" aria-labelledby="tab-ask" hidden>
-      <p><strong>Use it to understand.</strong> Explanations, code analysis and recommendations, with no file changes and no commands. Safe to point at an unfamiliar codebase.</p>
-      <div class="callout"><strong>Try:</strong> <em>"Explain how this project loads its data. Don't change anything."</em></div>
-    </div>
+    <div style="display:flex;gap:20px;align-items:flex-start;">
+      <img src="../images/modes-picture.png" alt="Modes overview" style="width:200px;flex-shrink:0;border-radius:8px;border:1px solid #e5e7eb;">
+      <div style="min-width:0;flex:1;">
+        <div class="tabs" role="tablist" aria-label="Built-in modes" id="mode-tabs">
+          <button class="tab" role="tab" id="tab-plan" aria-controls="panel-plan" aria-selected="true" data-mode="plan">Plan</button>
+          <button class="tab" role="tab" id="tab-agent" aria-controls="panel-agent" aria-selected="false" data-mode="agent" tabindex="-1">Agent / Code</button>
+          <button class="tab" role="tab" id="tab-ask" aria-controls="panel-ask" aria-selected="false" data-mode="ask" tabindex="-1">Ask</button>
+        </div>
+        <div class="tabpanel" role="tabpanel" id="panel-plan" aria-labelledby="tab-plan">
+          <p><strong>Use it before building.</strong> Design the architecture, break a problem down, write a specification. Great for new projects and complex features.</p>
+          <div class="callout"><strong>Try:</strong> <em>"Plan a single-file class registration page. What should it show, what checks should it run, and what could go wrong?"</em></div>
+        </div>
+        <div class="tabpanel" role="tabpanel" id="panel-agent" aria-labelledby="tab-agent" hidden>
+          <p><strong>Use it to make changes.</strong> Implement features, fix bugs, refactor, and run commands. It has the fullest tool access, which is why it is also the mode to be most careful with.</p>
+          <div class="callout"><strong>Name note:</strong> the Bob docs call this mode <strong>Agent</strong> on some pages and <strong>Code</strong> on others. It is the same job: the mode that writes code.</div>
+          <div class="callout"><strong>Try:</strong> <em>"Build the plan as registration.html in this folder."</em></div>
+        </div>
+        <div class="tabpanel" role="tabpanel" id="panel-ask" aria-labelledby="tab-ask" hidden>
+          <p><strong>Use it to understand.</strong> Explanations, code analysis and recommendations, with no file changes and no commands. Safe to point at an unfamiliar codebase.</p>
+          <div class="callout"><strong>Try:</strong> <em>"Explain how this project loads its data. Don't change anything."</em></div>
+        </div>
 
-    <h3>What each built-in mode can do</h3>
-    <p style="color:#57606a;font-size:13px">Tool access per the Bob docs' mode comparison. Highlighted row = the mode you selected above.</p>
-    <table class="grid" id="mode-matrix" aria-label="Tool access by mode"></table>
-    <p style="font-size:13px;color:#57606a">Bob's docs also list <strong>Advanced</strong> and <strong>Orchestrator</strong> as built-in modes, and Bob Shell describes Advanced as the mode for extended capabilities including MCP tools. Check your version's mode list for the full picture.</p>
+        <h3>What each built-in mode can do</h3>
+        <p style="color:#57606a;font-size:13px">Tool access per the Bob docs' mode comparison. Highlighted row = the mode you selected above.</p>
+        <table class="grid" id="mode-matrix" aria-label="Tool access by mode"></table>
+        <p style="font-size:13px;color:#57606a">Bob's docs also list <strong>Advanced</strong> and <strong>Orchestrator</strong> as built-in modes, and Bob Shell describes Advanced as the mode for extended capabilities including MCP tools. Check your version's mode list for the full picture.</p>
+      </div>
+    </div>
 
     <div class="callout info"><strong>The pattern that works:</strong> Plan → Agent → (Ask whenever you need to understand something). Five minutes planning saves thirty fixing.</div>
 
@@ -317,6 +322,7 @@
   <section class="block" id="rules" aria-labelledby="rules-h">
     <h2 class="section-title" id="rules-h">2 · Rules</h2>
     <h2 class="big">Say it once. Bob remembers it every time.</h2>
+    <img src="../images/rules-picture.png" alt="Rules overview" style="width:100%;max-width:860px;border-radius:8px;border:1px solid #e5e7eb;margin:12px 0 20px;display:block;">
     <p class="lede">Rules are instructions Bob reads at the start of every task, in every conversation. They are for standards that should never need repeating: branding, security expectations, test commands, naming conventions.</p>
 
     <h3>See the difference</h3>
@@ -397,8 +403,11 @@
 
     <div class="callout"><strong>Number check.</strong> The Bob docs state the cap as <strong>270,000 tokens</strong> on the context-window page and 200,000 in one tutorial; this varies by version. About 20k is typically reserved for Bob's next reply. Look at the <strong>token usage indicator</strong> in the top right of your Bob panel; hover or click it for the breakdown.</div>
 
-    <h3>Try it: a task filling up</h3>
-    <p>Everything below is a simulation with <em>illustrative</em> numbers (starting from the docs' small-project baseline), to build intuition. It is not Bob's real accounting.</p>
+    <div style="display:flex;gap:20px;align-items:flex-start;margin-top:24px;">
+      <img src="../images/tokencontent-picture.png" alt="Token and context window overview" style="width:200px;flex-shrink:0;border-radius:8px;border:1px solid #e5e7eb;">
+      <div style="min-width:0;flex:1;">
+        <h3 style="margin-top:0;">Try it: a task filling up</h3>
+        <p>Everything below is a simulation with <em>illustrative</em> numbers (starting from the docs' small-project baseline), to build intuition. It is not Bob's real accounting.</p>
 
     <div class="sim" id="sim">
       <div class="sim-top">
@@ -422,6 +431,8 @@
           <div class="logbox"><h4>What's in this task's memory</h4><ol id="sim-log" aria-live="polite"></ol></div>
           <p class="cost" id="sim-cost"></p>
         </div>
+      </div>
+    </div>
       </div>
     </div>
 
@@ -451,6 +462,7 @@
   <section class="block" id="mcp" aria-labelledby="mcp-h">
     <h2 class="section-title" id="mcp-h">4 · Connecting to MCP servers</h2>
     <h2 class="big">Give Bob hands outside your repo</h2>
+    <img src="../images/MCPservers-picture.png" alt="MCP servers overview" style="width:100%;max-width:860px;border-radius:8px;border:1px solid #e5e7eb;margin:12px 0 20px;display:block;">
     <p class="lede"><strong>MCP</strong> (Model Context Protocol) is an open standard for exposing tools and data to an AI. An MCP server might wrap a database, a ticketing system, a campus data feed, or a docs search. Once connected, Bob can call its tools instead of guessing.</p>
 
     <ol class="steps">
@@ -644,6 +656,7 @@ build/</pre>
   <section class="block" id="docs" aria-labelledby="docs-h">
     <h2 class="section-title" id="docs-h">6 · Documentation on demand</h2>
     <h2 class="big">Bob writes the docs, too</h2>
+    <img src="../images/documentation-image.png" alt="Documentation on demand overview" style="width:100%;max-width:860px;border-radius:8px;border:1px solid #e5e7eb;margin:12px 0 20px;display:block;">
     <p class="lede">Code that nobody can explain is a liability. Bob can read your project and write documentation as real files in your workspace: Markdown for repos and wikis, HTML for anything you want to hand to a non-developer. This is the part that makes a prototype something an IT team can actually evaluate.</p>
 
     <div class="tabs" role="tablist" aria-label="Documentation types" id="doc-tabs">
