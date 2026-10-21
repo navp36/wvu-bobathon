@@ -1,4 +1,4 @@
-import { api, admin, store, h, clear, toast, confirmDialog, hero, fmt, statusTag, errorBox, skeleton } from "./core.js";
+import { api, admin, store, refresh, h, clear, toast, confirmDialog, hero, fmt, statusTag, errorBox, skeleton } from "./core.js";
 
 let host, body, tab = "progress", ov = null, editing = null;
 
@@ -147,17 +147,23 @@ function judges(p) {
     if (!name.value.trim()) { name.classList.add("field-err"); err.textContent = "Enter the judge's name."; name.focus(); return; }
     try { await api("POST", "/api/judges", { name: name.value }); toast("Judge added."); name.value = ""; await loadOverview(true); render(); }
     catch (e) { name.classList.add("field-err"); err.textContent = e.message; }
-  } }, h("h3", { text: "Approved judges" }), h("p", { class: "meta", style: "margin:4px 0 12px", text: "Judges pick their name from this list on the Judge tab. Use names only." }),
+  } }, h("h3", { text: "Approved judges" }), h("p", { class: "meta", style: "margin:4px 0 12px", text: "Judges add themselves: on the Judge tab they enter the judge password (currently \"" + (ov.judgePasswordIsDefault ? "admin" : "set by JUDGE_PASSWORD") + "\") and their name. You can also pre-approve a name here; that person claims it when they sign in. Names only." }),
+    ov.judgePasswordIsDefault ? h("div", { class: "callout", role: "status" }, h("strong", { text: "Default judge password. " }), "Anyone who knows \"admin\" can become a judge. Before the real event, restart the server with ", h("code", { class: "inline", text: "JUDGE_PASSWORD=yourword" }), ".") : null,
     h("label", { for: "jf-name", text: "Judge name" }), h("div", { class: "row" }, h("div", { style: "flex:1;min-width:200px" }, name), h("button", { class: "btn pri", type: "submit", text: "Add judge" })), err);
   const rows = s.judges.map((j) => {
     const count = ov.projects.filter((x) => x.byJudge.some((b) => b.judgeId === j.id && b.done)).length;
-    return h("tr", {}, h("td", {}, h("strong", { text: j.name })), h("td", { text: count + " of " + ov.projects.length + " scored" }),
-      h("td", {}, h("button", { class: "btn ghost danger", type: "button", disabled: count > 0, title: count > 0 ? "Can't remove a judge who has submitted scores" : "", "aria-label": "Remove " + j.name, text: "Remove", onclick: async () => {
+    return h("tr", {}, h("td", {}, h("strong", { text: j.name })),
+      h("td", {}, j.claimed ? h("span", { class: "tag completed", text: "Signed in" }) : h("span", { class: "tag pending", text: "Not signed in yet" })),
+      h("td", { text: count + " of " + ov.projects.length + " scored" }),
+      h("td", {}, h("div", { class: "row" }, j.claimed ? h("button", { class: "btn ghost", type: "button", "aria-label": "Reset sign-in for " + j.name, text: "Reset sign-in", onclick: async () => {
+          const ok = await confirmDialog({ title: "Reset " + j.name + "'s sign-in?", body: "Their device will be signed out and they can sign in again with the judge password. Their submitted scores are kept.", confirmText: "Reset sign-in" });
+          if (!ok) return; try { await api("POST", "/api/judges/" + j.id + "/reset-access", {}); toast("Sign-in reset."); await refresh(); await loadOverview(true); render(); } catch (e) { toast(e.message, true); }
+        } }) : null, h("button", { class: "btn ghost danger", type: "button", disabled: count > 0, title: count > 0 ? "Can't remove a judge who has submitted scores" : "", "aria-label": "Remove " + j.name, text: "Remove", onclick: async () => {
         const ok = await confirmDialog({ title: "Remove " + j.name + "?", body: "They will no longer appear in the judge list.", confirmText: "Remove judge", danger: true });
         if (!ok) return; try { await api("DELETE", "/api/judges/" + j.id); toast("Judge removed."); await loadOverview(true); render(); } catch (e) { toast(e.message, true); }
-      } })));
+      } }))));
   });
-  p.append(form, s.judges.length ? h("div", { class: "tbl-wrap", style: "margin-top:20px" }, h("table", { class: "grid" }, h("caption", { class: "sr", text: "Judges" }), h("thead", {}, h("tr", {}, ["Judge", "Progress", ""].map((t) => h("th", { scope: "col", text: t })))), h("tbody", {}, rows))) : emptyState("No judges yet", "Add at least one judge so scoring can begin."),
+  p.append(form, s.judges.length ? h("div", { class: "tbl-wrap", style: "margin-top:20px" }, h("table", { class: "grid" }, h("caption", { class: "sr", text: "Judges" }), h("thead", {}, h("tr", {}, ["Judge", "Sign-in", "Progress", ""].map((t) => h("th", { scope: "col", text: t })))), h("tbody", {}, rows))) : emptyState("No judges yet", "Add at least one judge so scoring can begin."),
     h("p", { class: "meta", style: "margin-top:10px", text: "Judges who have submitted scores can't be removed, because that would change the results." }));
 }
 

@@ -1,4 +1,4 @@
-import { api, store, h, clear, toast, confirmDialog, hero, shortDate } from "./core.js";
+import { api, store, refresh, judgeAuth, h, clear, toast, confirmDialog, hero, shortDate } from "./core.js";
 
 const QUESTIONS = [
   "What inspired your idea/project?",
@@ -18,42 +18,117 @@ const DESC = {
   clarity: "How clear is the presentation and documentation?",
   growth: "How much learning and growth is demonstrated?",
 };
-const JUDGE_KEY = "bb-judge-id";
 const draftKey = (j, p) => "bb-draft:" + j + ":" + p;
 
-let host, judgeId = "", projectId = "", mySubmitted = new Set(), formApi = null, picker = {}, formHost, submitting = false;
+let host, me = null, judgeId = "", projectId = "", mySubmitted = new Set(), formApi = null, picker = {}, formHost, submitting = false;
 
 export async function mount(root) {
-  host = root; formApi = null;
-  try { judgeId = localStorage.getItem(JUDGE_KEY) || ""; } catch (e) { judgeId = ""; }
-  projectId = "";
-  host.append(hero("Judge scorecard · WVU Bobathon", "Score a submission", "Choose your name and a project, ask the questions, rate the five criteria from 1 to 10, then submit. Each judge can score each team once."));
-  picker.judgeSel = h("select", { id: "sel-judge", onchange: onJudge });
+  host = root; formApi = null; projectId = ""; me = null; judgeId = "";
+  host.append(hero("Judge scorecard · WVU Bobathon", "Score a submission", "Sign in as a judge, choose a project, ask the questions, rate the five criteria from 1 to 10, then submit. Each judge can score each team once."));
+  picker.bar = h("div", {});
   picker.projSel = h("select", { id: "sel-project", onchange: onProject });
   picker.note = h("p", { class: "meta", style: "margin-top:8px", "aria-live": "polite" });
-  host.append(
-    h("section", { "aria-labelledby": "sel-h" }, h("h2", { class: "section-title", id: "sel-h", text: "1 · Who and what" }),
-      h("div", { class: "picker" },
-        h("div", {}, h("label", { for: "sel-judge", text: "Your name" }), picker.judgeSel),
-        h("div", {}, h("label", { for: "sel-project", text: "Project" }), picker.projSel)),
-      picker.note),
-  );
+  picker.pick = h("div", {}, h("label", { for: "sel-project", text: "Project" }), picker.projSel, picker.note);
+  host.append(h("section", { "aria-labelledby": "sel-h" }, h("h2", { class: "section-title", id: "sel-h", text: "1 · Who and what" }), picker.bar, picker.pick));
   picker.team = h("div", {}); host.append(picker.team);
   formHost = h("div", {}); host.append(formHost);
-  await loadSubmitted();
-  fillPickers();
-  if (judgeId && state().judges.some((j) => j.id === judgeId)) {} else judgeId = "";
-  picker.judgeSel.value = judgeId;
-  renderTeam(); renderForm();
+  await checkSession();
+  renderAll();
+  if (!me) openSignIn();
 }
 
-export function unmount() { formApi = null; }
+export function unmount() { formApi = null; const d = document.getElementById("signin-dlg"); if (d) d.remove(); }
+
+const state = () => store.state;
+
+async function checkSession() {
+  me = null; judgeId = ""; mySubmitted = new Set();
+  if (!judgeAuth.token) return;
+  try { me = (await api("GET", "/api/me")).judge; judgeId = me.id; await loadSubmitted(); }
+  catch (e) { if (e.status === 401) judgeAuth.token = ""; else throw e; }
+}
+async function loadSubmitted() {
+  try { mySubmitted = new Set((await api("GET", "/api/me/submissions")).projectIds); }
+  catch (e) { if (e.status === 401) { judgeAuth.token = ""; me = null; judgeId = ""; mySubmitted = new Set(); } else throw e; }
+}
+
+function renderAll() { renderBar(); fillPickers(); renderTeam(); renderForm(); }
+
+function renderBar() {
+  clear(picker.bar);
+  if (!me) {
+    picker.bar.append(h("div", { class: "card white team-card", style: "margin-bottom:16px" },
+      h("div", { class: "who" }, h("h3", { text: "Judges only" }), h("p", { class: "meta", text: "Enter the judge password and add your name to open the scorecard." })),
+      h("div", {}, h("button", { class: "btn pri", type: "button", text: "Judge sign-in", onclick: openSignIn }))));
+    return;
+  }
+  picker.bar.append(h("div", { class: "card white team-card", style: "margin-bottom:16px;align-items:center" },
+    h("div", { class: "who" }, h("span", { class: "tag completed", text: "✓ Approved judge" }), h("h3", { style: "margin-top:6px", text: me.name })),
+    h("div", {}, h("button", { class: "btn ghost", type: "button", text: "Sign out", onclick: signOut }))));
+}
+
+async function signOut() {
+  const ok = await confirmDialog({ title: "Sign out?", body: "Your submitted scores stay saved. You can sign back in with the judge password and the same name.", confirmText: "Sign out" });
+  if (!ok) return;
+  try { await api("POST", "/api/me/signout", {}); } catch (e) { /* token may already be invalid */ }
+  judgeAuth.token = ""; projectId = ""; await checkSession(); renderAll(); openSignIn();
+}
+
+/* ---- sign-in popup: step 1 password, step 2 name ---- */
+function openSignIn() {
+  if (document.getElementById("signin-dlg") || me) return;
+  let password = "";
+  const dlg = h("dialog", { id: "signin-dlg", "aria-labelledby": "si-t" });
+  const body = h("div", { class: "dlg" });
+  dlg.append(body);
+  const close = () => { dlg.close(); dlg.remove(); };
+  function step1(msg) {
+    const pw = h("input", { type: "password", id: "si-pw", autocomplete: "off", "aria-describedby": "si-err" });
+    const err = h("div", { class: "err-text", id: "si-err", role: "alert", text: msg || "" });
+    clear(body).append(h("form", { novalidate: true, onsubmit: async (ev) => {
+      ev.preventDefault(); err.textContent = ""; pw.classList.remove("field-err");
+      if (!pw.value) { pw.classList.add("field-err"); err.textContent = "Enter the judge password."; pw.focus(); return; }
+      try { await api("POST", "/api/judges/check", { password: pw.value }); password = pw.value; step2(); }
+      catch (e) { pw.classList.add("field-err"); err.textContent = e.message; pw.select(); }
+    } },
+      h("h3", { id: "si-t", text: "Judge sign-in" }), h("p", { class: "muted", style: "margin-bottom:14px", text: "Enter the password the organizers gave you." }),
+      h("label", { for: "si-pw", text: "Judge password" }), pw, err,
+      h("div", { class: "actions" }, h("button", { class: "btn", type: "button", onclick: close, text: "Cancel" }), h("button", { class: "btn pri", type: "submit", text: "Continue" }))));
+    pw.focus();
+  }
+  function step2(msg) {
+    const nm = h("input", { type: "text", id: "si-name", autocomplete: "name", maxlength: "80", "aria-describedby": "si-err" });
+    const err = h("div", { class: "err-text", id: "si-err", role: "alert", text: msg || "" });
+    const btn = h("button", { class: "btn pri", type: "submit", text: "Join as judge" });
+    clear(body).append(h("form", { novalidate: true, onsubmit: async (ev) => {
+      ev.preventDefault(); err.textContent = ""; nm.classList.remove("field-err");
+      if (!nm.value.trim()) { nm.classList.add("field-err"); err.textContent = "Enter your name."; nm.focus(); return; }
+      btn.disabled = true;
+      try {
+        const r = await api("POST", "/api/judges/join", { name: nm.value, password });
+        judgeAuth.token = r.token; close(); toast("Welcome, " + r.judge.name + ". You're an approved judge.");
+        await checkSession(); await refresh(); renderAll();
+      } catch (e) {
+        if (e.data && e.data.code === "BAD_PASSWORD") { step1("The judge password changed. Enter it again."); return; }
+        nm.classList.add("field-err"); err.textContent = e.message; btn.disabled = false;
+      }
+    } },
+      h("h3", { id: "si-t", text: "Add your name" }), h("p", { class: "muted", style: "margin-bottom:14px", text: "Password accepted. Your name is added to the approved judges list and you'll appear on the organizer's progress board." }),
+      h("label", { for: "si-name", text: "Your name" }), nm, err,
+      h("div", { class: "actions" }, h("button", { class: "btn", type: "button", onclick: () => step1(), text: "Back" }), btn)));
+    nm.focus();
+  }
+  dlg.addEventListener("close", () => dlg.remove());
+  document.body.append(dlg); step1(); dlg.showModal();
+}
 
 export async function update() {
-  // Live update from the server: refresh the lists and lock state, but NEVER rebuild a form the judge is typing in.
+  if (!picker.projSel) return;
+  const keepP = picker.projSel.value;
+  const hadMe = !!me;
   await loadSubmitted();
-  const keepJ = picker.judgeSel.value, keepP = picker.projSel.value;
-  fillPickers(); picker.judgeSel.value = keepJ; picker.projSel.value = keepP;
+  if (hadMe && !me) { projectId = ""; renderAll(); toast("Your judge access was reset by the organizer. Please sign in again.", true); openSignIn(); return; }
+  fillPickers(); picker.projSel.value = keepP;
   if (projectId && !state().projects.some((p) => p.id === projectId)) {
     projectId = ""; renderTeam(); renderForm(); toast("That project was removed by the organizer.", true); return;
   }
@@ -63,33 +138,19 @@ export async function update() {
   else if (state().settings.scoringOpen && formApi) formApi.setClosed(false);
 }
 
-const state = () => store.state;
-
-async function loadSubmitted() {
-  if (!judgeId) { mySubmitted = new Set(); return; }
-  try { mySubmitted = new Set((await api("GET", "/api/judges/" + judgeId + "/submissions")).projectIds); }
-  catch (e) { mySubmitted = new Set(); if (e.status === 404) { judgeId = ""; } }
-}
-
 function fillPickers() {
   const s = state();
-  clear(picker.judgeSel).append(h("option", { value: "", text: s.judges.length ? "Select your name…" : "No judges added yet" }), ...s.judges.map((j) => h("option", { value: j.id, text: j.name })));
   clear(picker.projSel).append(
-    h("option", { value: "", text: s.projects.length ? (judgeId ? "Select a project…" : "Select your name first") : "No projects yet" }),
+    h("option", { value: "", text: !s.projects.length ? "No projects yet" : !me ? "Sign in to choose a project" : "Select a project…" }),
     ...s.projects.map((p) => {
       const done = mySubmitted.has(p.id);
-      return h("option", { value: p.id, text: p.name + (done ? "  ✓ Already scored" : "") });
+      return h("option", { value: p.id, disabled: done, class: done ? "scored" : false, text: p.name + (done ? "  ✓ Scored (locked)" : "") });
     }));
-  picker.projSel.disabled = !judgeId || !s.projects.length;
+  picker.projSel.disabled = !me || !s.projects.length;
   const total = s.projects.length, done = s.projects.filter((p) => mySubmitted.has(p.id)).length;
-  picker.note.textContent = judgeId ? "You have scored " + done + " of " + total + " projects." : "";
+  picker.note.textContent = me ? "You have scored " + done + " of " + total + " projects. Scored projects are grayed out below." : "";
 }
 
-async function onJudge() {
-  judgeId = picker.judgeSel.value; projectId = "";
-  try { judgeId ? localStorage.setItem(JUDGE_KEY, judgeId) : localStorage.removeItem(JUDGE_KEY); } catch (e) { /* ignore */ }
-  await loadSubmitted(); fillPickers(); picker.judgeSel.value = judgeId; picker.projSel.value = ""; renderTeam(); renderForm();
-}
 function onProject() { projectId = picker.projSel.value; renderTeam(); renderForm(); }
 
 function renderTeam() {
@@ -107,12 +168,12 @@ function renderTeam() {
 
 async function renderForm() {
   clear(formHost); formApi = null;
-  if (!judgeId) { formHost.append(h("div", { class: "empty", style: "margin-top:24px" }, h("b", { text: "Pick your name to begin" }), "Then choose the project you're about to judge.")); return; }
+  if (!me) { formHost.append(h("div", { class: "empty", style: "margin-top:24px" }, h("b", { text: "The scorecard is for approved judges" }), "Sign in with the judge password to open it.")); return; }
   if (!projectId) { formHost.append(h("div", { class: "empty", style: "margin-top:24px" }, h("b", { text: "Choose a project" }), "Its team details appear above and the scorecard opens here.")); return; }
   const j = judgeId, p = projectId;
   let locked = null;
   if (mySubmitted.has(p)) {
-    try { locked = (await api("GET", "/api/judges/" + j + "/submissions/" + p)).submission; }
+    try { locked = (await api("GET", "/api/me/submissions/" + p)).submission; }
     catch (e) { toast(e.message, true); }
     if (j !== judgeId || p !== projectId) return; // changed selection while loading
   }
@@ -124,7 +185,7 @@ async function renderForm() {
 function buildForm(jId, pId, locked) {
   const s = state();
   const proj = s.projects.find((x) => x.id === pId);
-  const judgeName = (s.judges.find((x) => x.id === jId) || {}).name || "";
+  const judgeName = me ? me.name : "";
   const rated = {}, qEls = [], mEls = {}, notes = {};
   let closed = !s.settings.scoringOpen;
   const ro = !!locked;
@@ -249,7 +310,7 @@ function buildForm(jId, pId, locked) {
     if (!ok) return;
     submitting = true; submitBtn.disabled = true; submitBtn.textContent = "Submitting…";
     const payload = {
-      judgeId: jId, projectId: pId, suggestion: suggestion.value, overall: overall.value,
+      projectId: pId, suggestion: suggestion.value, overall: overall.value,
       scores: Object.fromEntries(s.criteria.map((c) => [c.key, Number(mEls[c.key].slider.value)])),
       notes: Object.fromEntries(s.criteria.map((c) => [c.key, mEls[c.key].note.value])),
       questions: qEls.map((q) => ({ asked: q.cb.checked, note: q.ta.value })),
@@ -258,10 +319,10 @@ function buildForm(jId, pId, locked) {
       await api("POST", "/api/scores", payload);
       try { localStorage.removeItem(dk); } catch (e) { /* ignore */ }
       toast("Submitted. " + proj.name + " is now locked for you.");
-      await loadSubmitted(); fillPickers(); picker.judgeSel.value = jId; picker.projSel.value = pId; renderTeam(); await renderForm();
+      await loadSubmitted(); fillPickers(); picker.projSel.value = pId; renderTeam(); await renderForm();
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (e) {
-      if (e.data && e.data.code === "ALREADY_SCORED") { toast(e.message, true); await loadSubmitted(); fillPickers(); picker.judgeSel.value = jId; picker.projSel.value = pId; renderTeam(); await renderForm(); }
+      if (e.data && e.data.code === "ALREADY_SCORED") { toast(e.message, true); await loadSubmitted(); fillPickers(); picker.projSel.value = pId; renderTeam(); await renderForm(); }
       else {
         formErr.hidden = false; formErr.textContent = e.message;
         if (e.data && e.data.fields) e.data.fields.forEach((k) => { if (mEls[k]) mEls[k].card.classList.add("invalid"); });

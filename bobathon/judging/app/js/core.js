@@ -8,10 +8,17 @@ export const admin = {
   set pin(v) { try { v ? sessionStorage.setItem(PIN_KEY, v) : sessionStorage.removeItem(PIN_KEY); } catch (e) { /* ignore */ } },
 };
 
+const JT_KEY = "bb-judge-token";
+export const judgeAuth = {
+  get token() { try { return localStorage.getItem(JT_KEY) || ""; } catch (e) { return ""; } },
+  set token(v) { try { v ? localStorage.setItem(JT_KEY, v) : localStorage.removeItem(JT_KEY); } catch (e) { /* ignore */ } },
+};
+
 export async function api(method, path, body) {
   const headers = { Accept: "application/json" };
   if (body !== undefined) headers["Content-Type"] = "application/json";
   if (admin.pin) headers["x-admin-pin"] = admin.pin;
+  if (judgeAuth.token) headers["x-judge-token"] = judgeAuth.token;
   let res;
   try {
     res = await fetch(path, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) });

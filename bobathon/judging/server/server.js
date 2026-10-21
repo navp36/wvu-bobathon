@@ -19,6 +19,8 @@ const DATA_FILE = process.env.DATA_FILE || path.join(__dirname, "data.json");
 const APP_DIR = path.join(__dirname, "..", "app");
 const PIN_FROM_ENV = !!process.env.ORGANIZER_PIN;
 const PIN = process.env.ORGANIZER_PIN || String(crypto.randomInt(100000, 999999));
+const JUDGE_PASSWORD = process.env.JUDGE_PASSWORD || "admin";
+const JUDGE_PASSWORD_IS_DEFAULT = !process.env.JUDGE_PASSWORD;
 
 const CRITERIA = ["creativity", "impact", "implementation", "clarity", "growth"];
 const CRITERIA_NAMES = {
@@ -141,9 +143,7 @@ function parseProject(b) {
     description: str(b.description, "Description", { max: 600 }),
   };
 }
-function parseScore(b) {
-  const judge = db.judges.find((j) => j.id === b.judgeId);
-  if (!judge) throw bad("Choose a judge from the list.", ["judgeId"]);
+function parseScore(b, judge) {
   const project = db.projects.find((p) => p.id === b.projectId);
   if (!project) throw bad("Choose a project from the list.", ["projectId"]);
   if (!b.scores || typeof b.scores !== "object") throw bad("Scores are required.", ["scores"]);
@@ -169,6 +169,16 @@ function isAdmin(req) {
   const want = Buffer.from(PIN);
   return got.length === want.length && crypto.timingSafeEqual(got, want);
 }
+const sha = (v) => crypto.createHash("sha256").update(String(v)).digest("hex");
+function safeEq(a, b) { const x = Buffer.from(sha(a)), y = Buffer.from(sha(b)); return crypto.timingSafeEqual(x, y); }
+const publicJudge = (j) => ({ id: j.id, name: j.name, claimed: !!j.tokenHash });
+// Judges prove who they are with a secret token issued at sign-in (only its hash is stored).
+function authJudge(req) {
+  const t = String(req.headers["x-judge-token"] || "");
+  const j = t && db.judges.find((x) => x.tokenHash && x.tokenHash === sha(t));
+  if (!j) throw new HttpError(401, "Sign in as a judge first.", { code: "NOT_JUDGE" });
+  return j;
+}
 function requireAdmin(req) { if (!isAdmin(req)) throw new HttpError(401, "Organizer PIN required."); }
 
 /* --------------------------------------------------------------- routes */
@@ -188,7 +198,7 @@ function adminOverview() {
   const list = ranked();
   const rankById = {}; list.forEach((x) => { rankById[x.p.id] = x.rank; });
   return {
-    settings: db.settings,
+    settings: db.settings, judgePasswordIsDefault: JUDGE_PASSWORD_IS_DEFAULT,
     projects: db.projects.map((p) => {
       const st = projectStats(p);
       return {
@@ -223,7 +233,7 @@ const routes = [];
 const route = (method, pattern, fn) => routes.push({ method, re: new RegExp("^" + pattern.replace(/:(\w+)/g, "(?<$1>[^/]+)") + "$"), fn });
 
 route("GET", "/api/state", () => ({
-  projects: db.projects.map(publicProject), judges: db.judges,
+  projects: db.projects.map(publicProject), judges: db.judges.map(publicJudge),
   progress: progress(), reveal: { step: db.settings.revealStep, maxStep: MAX_REVEAL_STEP },
   settings: { feedbackOpen: db.settings.feedbackOpen, scoringOpen: db.settings.scoringOpen, sample: !!db.settings.sample },
   criteria: CRITERIA.map((c) => ({ key: c, name: CRITERIA_NAMES[c] })), maxTotal: MAX_TOTAL,
@@ -273,21 +283,48 @@ route("DELETE", "/api/judges/:judgeId", (req, ctx) => {
   db.judges = db.judges.filter((j) => j.id !== ctx.judgeId); persist(); broadcast(); return { ok: true };
 });
 
-// Judge: which projects have I scored? / read my own submission
-route("GET", "/api/judges/:judgeId/submissions", (req, ctx) => {
-  if (!db.judges.some((j) => j.id === ctx.judgeId)) throw new HttpError(404, "Judge not found.");
-  return { projectIds: db.scores.filter((s) => s.judgeId === ctx.judgeId).map((s) => s.projectId) };
+// Judge sign-in: shared judge password + a name. Creates the judge (or claims an organizer-added name).
+route("POST", "/api/judges/join", (req, ctx, body) => {
+  const name = str(body.name, "Your name", { required: true, max: 80 });
+  if (typeof body.password !== "string" || !body.password || !safeEq(body.password, JUDGE_PASSWORD)) throw new HttpError(401, "Incorrect judge password.", { code: "BAD_PASSWORD" });
+  let j = db.judges.find((x) => x.name.toLowerCase() === name.toLowerCase());
+  if (j && j.tokenHash) throw new HttpError(409, "\"" + j.name + "\" is already signed in on another device. If that's you, ask the organizer to reset your access.", { code: "NAME_TAKEN" });
+  if (!j) { j = { id: id("j"), name }; db.judges.push(j); }
+  const token = crypto.randomBytes(24).toString("hex");
+  j.tokenHash = sha(token);
+  persist(); broadcast();
+  return { judge: publicJudge(j), token };
 });
-route("GET", "/api/judges/:judgeId/submissions/:projectId", (req, ctx) => {
-  const s = db.scores.find((x) => x.judgeId === ctx.judgeId && x.projectId === ctx.projectId);
+route("POST", "/api/judges/check", (req, ctx, body) => {
+  if (typeof body.password !== "string" || !body.password || !safeEq(body.password, JUDGE_PASSWORD)) throw new HttpError(401, "Incorrect judge password.", { code: "BAD_PASSWORD" });
+  return { ok: true };
+});
+route("POST", "/api/me/signout", (req) => { const j = authJudge(req); j.tokenHash = null; persist(); broadcast(); return { ok: true }; });
+route("POST", "/api/judges/:judgeId/reset-access", (req, ctx) => {
+  requireAdmin(req);
+  const j = db.judges.find((x) => x.id === ctx.judgeId);
+  if (!j) throw new HttpError(404, "Judge not found.");
+  j.tokenHash = null; persist(); broadcast(); return { ok: true };
+});
+
+// The signed-in judge: who am I, which projects have I scored, read my own submission
+route("GET", "/api/me", (req) => ({ judge: publicJudge(authJudge(req)) }));
+route("GET", "/api/me/submissions", (req) => {
+  const j = authJudge(req);
+  return { projectIds: db.scores.filter((s) => s.judgeId === j.id).map((s) => s.projectId) };
+});
+route("GET", "/api/me/submissions/:projectId", (req, ctx) => {
+  const j = authJudge(req);
+  const s = db.scores.find((x) => x.judgeId === j.id && x.projectId === ctx.projectId);
   if (!s) throw new HttpError(404, "No submission yet.");
   return { submission: s };
 });
 
 // Submit (server-side duplicate lock: one score per judge + project, ever)
 route("POST", "/api/scores", (req, ctx, body) => {
+  const judge = authJudge(req);
   if (!db.settings.scoringOpen) throw new HttpError(423, "Scoring is closed. Ask the organizer to reopen it.");
-  const v = parseScore(body);
+  const v = parseScore(body, judge);
   if (db.scores.some((s) => s.judgeId === v.judge.id && s.projectId === v.project.id))
     throw new HttpError(409, v.judge.name + " has already scored " + v.project.name + ". Submissions are locked.", { code: "ALREADY_SCORED" });
   const rec = {
@@ -387,6 +424,7 @@ if (require.main === module) {
     console.log("\nWVU Bobathon judging server");
     console.log("  App:        http://localhost:" + PORT);
     console.log("  Data file:  " + DATA_FILE + (db.settings.sample ? "  (sample data loaded)" : ""));
+    console.log("  Judge password: " + (JUDGE_PASSWORD_IS_DEFAULT ? "admin   (default; set JUDGE_PASSWORD to change it)" : "(set via JUDGE_PASSWORD)"));
     console.log("  Organizer PIN: " + PIN + (PIN_FROM_ENV ? "" : "   (random; set ORGANIZER_PIN to keep it across restarts)"));
     console.log("  Judges on other devices: use this machine's LAN address, e.g. http://<your-ip>:" + PORT + "\n");
   });

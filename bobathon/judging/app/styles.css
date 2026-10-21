@@ -227,7 +227,7 @@ input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 
 .crit-bars .cb b { text-align: right; font-variant-numeric: tabular-nums; }
 
 /* Dialog + toast */
-dialog { border: none; border-radius: 8px; padding: 0; max-width: 460px; width: calc(100% - 32px); box-shadow: 0 12px 48px rgba(0,0,0,.35); }
+dialog { margin: auto; border: none; border-radius: 8px; padding: 0; max-width: 460px; width: calc(100% - 32px); box-shadow: 0 12px 48px rgba(0,0,0,.35); }
 dialog::backdrop { background: rgba(0,20,45,.55); }
 dialog .dlg { padding: 24px; border-top: 4px solid var(--gold); border-radius: 8px; }
 dialog h3 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
@@ -270,3 +270,6 @@ footer { border-top: 1px solid #e5e7eb; padding: 20px 0; text-align: center; fon
   .bar > i, .tmeter .tthumb { transition: none; }
   .confetti { display: none; }
 }
+
+/* Scored projects stay visible but grayed out in the judge's dropdown */
+#sel-project option:disabled, #sel-project option.scored { color: #8c959f; background: #f0f1f3; }
