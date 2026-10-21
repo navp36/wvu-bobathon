@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Judge Scorecard · WVU Bobathon</title>
+<style>
+    :root {
+      --accent: #002855;
+      --accent-rgb: 0,40,85;
+      --accent-secondary: #8a6500;
+      --accent-tint: #e6ecf5;
+      --accent-border: #c3d0e3;
+      --gold: #eaaa00;
+      --bad: #b42318;
+      --good: #1a7f37;
+      --code-bg: #f0f1f3;
+      --track: #d0d7de;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; scroll-padding-top: 84px; }
+    body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 15px; line-height: 1.6; color: #1f2328; background: #fff; }
+    a { color: var(--accent); }
+    :focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+    .page-wrap { max-width: 1000px; margin: 0 auto; padding: 0 40px; }
+
+    /* Header */
+    .header { border-bottom: 3px solid var(--gold); padding: 14px 0; position: sticky; top: 0; background: var(--accent); z-index: 100; transition: box-shadow .2s ease; }
+    .header.scrolled { box-shadow: 0 2px 16px rgba(0,0,0,0.22); }
+    .header-inner { max-width: 1000px; margin: 0 auto; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .brand { font-weight: 700; color: #fff; white-space: nowrap; letter-spacing: .01em; }
+    .brand span { color: var(--gold); }
+    .nav { display: flex; gap: 18px; flex-wrap: wrap; justify-content: flex-end; margin-left: auto; }
+    .nav a { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.75); text-decoration: none; padding: 4px 0; border-bottom: 2px solid transparent; }
+    .nav a:hover, .nav a.active { color: #fff; border-bottom-color: var(--gold); }
+    .pill { font-size: 13px; font-weight: 700; color: var(--accent); background: var(--gold); border-radius: 999px; padding: 3px 14px; white-space: nowrap; }
+
+    /* Hero */
+    @keyframes hero-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+    .hero { padding: 56px 0 16px; max-width: 860px; }
+    .hero-eyebrow { font-size: 13px; color: var(--accent); font-weight: 700; letter-spacing: .04em; margin-bottom: 10px; animation: hero-in .4s cubic-bezier(.22,1,.36,1) .05s both; }
+    .hero h1 { font-size: 52px; font-weight: 300; line-height: 1.1; margin-bottom: 16px; animation: hero-in .45s cubic-bezier(.22,1,.36,1) .12s both; }
+    .hero p { font-size: 16px; color: #57606a; max-width: 680px; animation: hero-in .45s cubic-bezier(.22,1,.36,1) .18s both; }
+
+    /* Type */
+    .section-title { font-size: 13px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: .07em; margin: 56px 0 8px; }
+    h2.big { font-size: 30px; font-weight: 300; line-height: 1.2; margin-bottom: 12px; }
+    .lede { color: #57606a; max-width: 720px; margin-bottom: 20px; }
+    h3 { font-size: 16px; font-weight: 700; margin: 0; }
+    code.inline { background: var(--code-bg); border-radius: 3px; padding: 1px 5px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12.5px; }
+
+    /* Callouts */
+    .callout { border-left: 4px solid var(--gold); background: #fffdf5; padding: 12px 16px; font-size: 14px; border-radius: 0 6px 6px 0; margin: 16px 0; }
+    .callout.info { border-left-color: var(--accent); background: var(--accent-tint); }
+    .callout.warn { border-left-color: var(--bad); background: #fdecea; }
+
+    /* Form controls */
+    label { display: block; font-size: 13px; font-weight: 600; color: #57606a; margin-bottom: 4px; }
+    input[type=text], input[type=date], textarea { width: 100%; font: inherit; font-size: 14px; color: #1f2328; background: #fff; border: 1px solid #c9ced6; border-radius: 4px; padding: 8px 10px; }
+    textarea { resize: vertical; min-height: 64px; line-height: 1.5; }
+    input[type=text]:hover, input[type=date]:hover, textarea:hover { border-color: #9aa3ad; }
+    .btn { font: inherit; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--accent); background: #fff; border: 1px solid var(--accent); border-radius: 4px; padding: 7px 14px; transition: background .15s, color .15s; }
+    .btn:hover { background: var(--accent); color: #fff; }
+    .btn.pri { background: var(--accent); color: #fff; }
+    .btn.pri:hover { background: #001a38; }
+    .btn.ghost { border-color: #c9ced6; color: #57606a; padding: 3px 10px; font-size: 12px; }
+    .btn.ghost:hover { background: #57606a; color: #fff; border-color: #57606a; }
+
+    /* Submission info */
+    .info-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+
+    /* Questions */
+    .q-list { list-style: none; display: grid; gap: 12px; }
+    .q { border: 1px solid #e5e7eb; border-radius: 6px; background: #f7f8fa; padding: 14px 16px; display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 4px 12px; }
+    .q .n { width: 28px; height: 28px; border-radius: 50%; background: var(--accent-tint); color: var(--accent); font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+    .q .qt { font-weight: 600; }
+    .q .asked { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: #57606a; margin: 2px 0 8px; cursor: pointer; }
+    .q .asked input { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+    .q .body { grid-column: 2; }
+    .q textarea { min-height: 52px; }
+
+    /* Scale guide */
+    details.guide { border: 1px solid #e5e7eb; border-radius: 6px; background: #fff; margin-bottom: 16px; }
+    details.guide summary { cursor: pointer; padding: 10px 16px; font-weight: 600; font-size: 14px; color: var(--accent); }
+    details.guide .gbody { padding: 0 16px 14px; font-size: 13px; }
+    table.grid { width: 100%; border-collapse: collapse; font-size: 13px; margin: 6px 0; }
+    table.grid th, table.grid td { border-bottom: 1px solid #e5e7eb; padding: 7px 10px; text-align: left; vertical-align: top; }
+    table.grid th { color: var(--accent); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+
+    /* Metric cards */
+    .metrics { display: grid; gap: 16px; }
+    .metric { border: 1px solid #e5e7eb; border-radius: 6px; background: #f7f8fa; padding: 20px; display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 16px 28px; transition: border-color .18s, box-shadow .18s; }
+    .metric:hover { border-color: var(--accent-border); box-shadow: 0 4px 16px rgba(var(--accent-rgb), .08); }
+    .metric .mnum { font-size: 11px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: .06em; }
+    .metric .mdesc { font-size: 14px; color: #57606a; margin: 2px 0 14px; }
+    .slide-row { display: flex; align-items: center; gap: 14px; }
+    .val { min-width: 54px; text-align: center; font-size: 26px; font-weight: 300; color: #8c959f; line-height: 1; }
+    .val small { display: block; font-size: 11px; font-weight: 600; letter-spacing: .04em; margin-top: 2px; color: #8c959f; }
+    .metric.rated .val { color: var(--accent); font-weight: 700; }
+    .slider-col { flex: 1; min-width: 0; }
+    .metric .clear { visibility: hidden; margin-top: 8px; }
+    .metric.rated .clear { visibility: visible; }
+
+    input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 28px; background: transparent; cursor: pointer; --p: 0; }
+    input[type=range]::-webkit-slider-runnable-track { height: 8px; border-radius: 999px; background: linear-gradient(to right, var(--accent) calc(12px + (100% - 24px) * var(--p)), var(--track) 0); }
+    input[type=range]::-moz-range-track { height: 8px; border-radius: 999px; background: var(--track); }
+    input[type=range]::-moz-range-progress { height: 8px; border-radius: 999px; background: var(--accent); }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: var(--gold); border: 3px solid var(--accent); margin-top: -8px; box-shadow: 0 1px 4px rgba(0,0,0,.25); }
+    input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--gold); border: 3px solid var(--accent); box-shadow: 0 1px 4px rgba(0,0,0,.25); }
+    .metric:not(.rated) input[type=range]::-webkit-slider-thumb { background: #fff; border-color: #9aa3ad; }
+    .metric:not(.rated) input[type=range]::-moz-range-thumb { background: #fff; border-color: #9aa3ad; }
+    .metric:not(.rated) input[type=range]::-moz-range-progress { background: var(--track); }
+    .ticks { display: flex; justify-content: space-between; font-size: 11px; color: #8c959f; margin-top: -2px; }
+    .ticks span { width: 24px; text-align: center; }
+
+    /* Total */
+    .total { border: 1px solid #e5e7eb; border-top: 4px solid var(--gold); border-radius: 8px; background: #f7f8fa; padding: 24px; }
+    .total-top { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+    .big-num { font-size: 56px; font-weight: 300; line-height: 1; color: var(--accent); }
+    .big-num span { font-size: 24px; color: #8c959f; }
+    .tstats { display: flex; gap: 28px; flex-wrap: wrap; }
+    .tstats div { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: #57606a; }
+    .tstats b { display: block; font-size: 22px; font-weight: 700; letter-spacing: 0; text-transform: none; color: #1f2328; }
+    .tmeter { position: relative; height: 28px; --p: 0; }
+    .tmeter .ttrack { position: absolute; left: 0; right: 0; top: 10px; height: 8px; border-radius: 999px; background: linear-gradient(to right, var(--accent) calc(12px + (100% - 24px) * var(--p)), var(--track) 0); transition: background .25s; }
+    .tmeter .tthumb { position: absolute; top: 2px; width: 24px; height: 24px; border-radius: 50%; background: var(--gold); border: 3px solid var(--accent); box-shadow: 0 1px 4px rgba(0,0,0,.25); left: calc((100% - 24px) * var(--p)); transition: left .25s cubic-bezier(.22,1,.36,1); }
+    .tticks { display: flex; justify-content: space-between; font-size: 11px; color: #8c959f; padding: 0 0; }
+    .tstatus { font-size: 13px; margin-top: 12px; color: #57606a; }
+    .tstatus.warn { color: var(--bad); font-weight: 600; }
+    .overall { margin-top: 20px; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; align-items: center; }
+    .actions .note { font-size: 12px; color: #57606a; }
+
+    footer { border-top: 1px solid #e5e7eb; padding: 20px 0; text-align: center; font-size: 12px; color: #8c959f; margin-top: 64px; }
+
+    @media (max-width: 860px) {
+      .page-wrap, .header-inner { padding: 0 20px; }
+      .info-grid { grid-template-columns: 1fr 1fr; }
+      .metric { grid-template-columns: minmax(0, 1fr); }
+      .hero h1 { font-size: 36px; }
+      .nav { display: none; }
+      .header-inner { justify-content: space-between; }
+    }
+    @media (max-width: 520px) { .info-grid { grid-template-columns: 1fr; } .big-num { font-size: 44px; } }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .hero-eyebrow, .hero h1, .hero p { animation: none; }
+      .tmeter .tthumb, .tmeter .ttrack, .metric, .header { transition: none; }
+    }
+    @media print {
+      .header, .actions, details.guide, .metric .clear, .callout.noprint, footer .screen { display: none !important; }
+      body { font-size: 11pt; }
+      .page-wrap { max-width: none; padding: 0; }
+      .hero { padding: 0 0 8px; } .hero h1 { font-size: 26pt; animation: none; } .hero p, .hero-eyebrow { animation: none; }
+      .section-title { margin-top: 18px; }
+      h2.big { font-size: 16pt; }
+      .q, .metric, .total { break-inside: avoid; box-shadow: none; }
+      .metric { grid-template-columns: 1fr 1fr; padding: 12px; }
+      textarea, input { border: 1px solid #999; }
+      input[type=range]::-webkit-slider-thumb { box-shadow: none; }
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+<header class="header" id="top-header">
+  <div class="header-inner">
+    <div class="brand">WVU <span>●</span> Bobathon</div>
+    <nav class="nav" aria-label="Scorecard sections">
+      <a href="#submission">Submission</a>
+      <a href="#questions">Questions</a>
+      <a href="#scoring">Scoring</a>
+      <a href="#total">Total</a>
+    </nav>
+    <span class="pill" id="hdr-total" aria-live="polite">Total 0 / 50</span>
+  </div>
+</header>
+
+<div class="page-wrap">
+  <section class="hero">
+    <p class="hero-eyebrow">Judge scorecard · WVU Bobathon</p>
+    <h1>Score a submission</h1>
+    <p>Fill one scorecard per team. Ask the questions, rate each of the five criteria from 1 to 10, and explain your reasoning in the notes. The total calculates itself.</p>
+  </section>
+</div>
+
+<main class="page-wrap">
+
+  <div class="callout info noprint"><strong>Your entries stay on this device.</strong> Nothing is sent anywhere. They are kept in this browser tab only so a refresh won't lose them; closing the tab clears them. Before you move on, use <strong>Copy summary</strong> or <strong>Print</strong> at the bottom to keep a record. Refer to teams by project or team name; don't enter student contact details.</div>
+
+  <!-- SUBMISSION -->
+  <section id="submission" aria-labelledby="submission-h">
+    <h2 class="section-title" id="submission-h">1 · Submission</h2>
+    <div class="info-grid">
+      <div><label for="f-project">Project name</label><input type="text" id="f-project" data-save autocomplete="off"></div>
+      <div><label for="f-team">Team name</label><input type="text" id="f-team" data-save autocomplete="off"></div>
+      <div><label for="f-judge">Judge</label><input type="text" id="f-judge" data-save autocomplete="off"></div>
+      <div><label for="f-date">Date</label><input type="date" id="f-date" data-save></div>
+    </div>
+  </section>
+
+  <!-- QUESTIONS -->
+  <section id="questions" aria-labelledby="questions-h">
+    <h2 class="section-title" id="questions-h">2 · Questions to ask</h2>
+    <h2 class="big">Let the team tell the story</h2>
+    <p class="lede">You don't need to ask every question. Tick the ones you asked and jot down anything that stands out; those notes will help when you score.</p>
+    <ol class="q-list">
+      <li class="q"><span class="n" aria-hidden="true">1</span><div class="body"><div class="qt" id="q1-t">What inspired your idea/project?</div>
+        <label class="asked"><input type="checkbox" id="q1-a" data-save aria-describedby="q1-t"> Asked</label>
+        <label for="q1-n" class="sr">Notes for question 1</label><textarea id="q1-n" data-save rows="2" placeholder="Notes (optional)"></textarea></div></li>
+      <li class="q"><span class="n" aria-hidden="true">2</span><div class="body"><div class="qt" id="q2-t">How did you decide on your approach?</div>
+        <label class="asked"><input type="checkbox" id="q2-a" data-save aria-describedby="q2-t"> Asked</label>
+        <label for="q2-n" class="sr">Notes for question 2</label><textarea id="q2-n" data-save rows="2" placeholder="Notes (optional)"></textarea></div></li>
+      <li class="q"><span class="n" aria-hidden="true">3</span><div class="body"><div class="qt" id="q3-t">How did you make sure your solution is usable for the target audience?</div>
+        <label class="asked"><input type="checkbox" id="q3-a" data-save aria-describedby="q3-t"> Asked</label>
+        <label for="q3-n" class="sr">Notes for question 3</label><textarea id="q3-n" data-save rows="2" placeholder="Notes (optional)"></textarea></div></li>
+      <li class="q"><span class="n" aria-hidden="true">4</span><div class="body"><div class="qt" id="q4-t">What did you learn during your project (technical/nontechnical)?</div>
+        <label class="asked"><input type="checkbox" id="q4-a" data-save aria-describedby="q4-t"> Asked</label>
+        <label for="q4-n" class="sr">Notes for question 4</label><textarea id="q4-n" data-save rows="2" placeholder="Notes (optional)"></textarea></div></li>
+      <li class="q"><span class="n" aria-hidden="true">5</span><div class="body"><div class="qt" id="q5-t">What was a challenge you faced working on this project?</div>
+        <label class="asked"><input type="checkbox" id="q5-a" data-save aria-describedby="q5-t"> Asked</label>
+        <label for="q5-n" class="sr">Notes for question 5</label><textarea id="q5-n" data-save rows="2" placeholder="Notes (optional)"></textarea></div></li>
+      <li class="q"><span class="n" aria-hidden="true">6</span><div class="body"><div class="qt" id="q6-t">How did your team handle areas where no one had prior experience?</div>
+        <label class="asked"><input type="checkbox" id="q6-a" data-save aria-describedby="q6-t"> Asked</label>
+        <label for="q6-n" class="sr">Notes for question 6</label><textarea id="q6-n" data-save rows="2" placeholder="Notes (optional)"></textarea></div></li>
+      <li class="q"><span class="n" aria-hidden="true">7</span><div class="body"><div class="qt" id="q7-t">How did you divide the work among your team?</div>
+        <label class="asked"><input type="checkbox" id="q7-a" data-save aria-describedby="q7-t"> Asked</label>
+        <label for="q7-n" class="sr">Notes for question 7</label><textarea id="q7-n" data-save rows="2" placeholder="Notes (optional)"></textarea></div></li>
+      <li class="q"><span class="n" aria-hidden="true">8</span><div class="body"><div class="qt" id="q8-t">What makes your project different from competitors or other existing solutions?</div>
+        <label class="asked"><input type="checkbox" id="q8-a" data-save aria-describedby="q8-t"> Asked</label>
+        <label for="q8-n" class="sr">Notes for question 8</label><textarea id="q8-n" data-save rows="2" placeholder="Notes (optional)"></textarea></div></li>
+      <li class="q"><span class="n" aria-hidden="true">9</span><div class="body"><div class="qt" id="q9-t">If you had more time, what features would you add/improve?</div>
+        <label class="asked"><input type="checkbox" id="q9-a" data-save aria-describedby="q9-t"> Asked</label>
+        <label for="q9-n" class="sr">Notes for question 9</label><textarea id="q9-n" data-save rows="2" placeholder="Notes (optional)"></textarea></div></li>
+    </ol>
+  </section>
+
+  <!-- SCORING -->
+  <section id="scoring" aria-labelledby="scoring-h">
+    <h2 class="section-title" id="scoring-h">3 · Scoring</h2>
+    <h2 class="big">Rate each criterion from 1 to 10</h2>
+    <p class="lede">Drag a slider (or focus it and use the arrow keys). A criterion counts toward the total only after you've rated it, so an untouched slider never adds points by accident. Use the notes box to explain the score.</p>
+
+    <details class="guide">
+      <summary>Suggested scale (agree on it with the other judges first)</summary>
+      <div class="gbody">
+        <table class="grid">
+          <thead><tr><th>Score</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><strong>1–2</strong></td><td>Little or no evidence</td></tr>
+            <tr><td><strong>3–4</strong></td><td>Below expectations</td></tr>
+            <tr><td><strong>5–6</strong></td><td>Meets basic expectations</td></tr>
+            <tr><td><strong>7–8</strong></td><td>Strong</td></tr>
+            <tr><td><strong>9–10</strong></td><td>Outstanding</td></tr>
+          </tbody>
+        </table>
+        <p style="color:#57606a;margin-top:6px">Scores are only comparable if every judge uses the scale the same way. Agree on it before the first demo, and score each team on its own merits rather than against the team before it.</p>
+      </div>
+    </details>
+
+    <div class="metrics">
+      <div class="metric" data-key="creativity" data-name="Creativity and Originality">
+        <div>
+          <div class="mnum">Criterion 1</div>
+          <h3 id="m1-t">Creativity and Originality</h3>
+          <p class="mdesc">How original and innovative is the project?</p>
+          <div class="slide-row">
+            <div class="slider-col">
+              <input type="range" class="slider" id="s-creativity" min="1" max="10" step="1" value="1" data-save aria-labelledby="m1-t">
+              <div class="ticks" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
+            </div>
+            <div class="val" aria-hidden="true">—<small>OF 10</small></div>
+          </div>
+          <button type="button" class="btn ghost clear">Clear rating</button>
+        </div>
+        <div><label for="n-creativity">Notes / justification</label><textarea id="n-creativity" data-save rows="4" placeholder="Why this score?"></textarea></div>
+      </div>
+
+      <div class="metric" data-key="impact" data-name="Impact">
+        <div>
+          <div class="mnum">Criterion 2</div>
+          <h3 id="m2-t">Impact</h3>
+          <p class="mdesc">What impact does this project have?</p>
+          <div class="slide-row">
+            <div class="slider-col">
+              <input type="range" class="slider" id="s-impact" min="1" max="10" step="1" value="1" data-save aria-labelledby="m2-t">
+              <div class="ticks" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
+            </div>
+            <div class="val" aria-hidden="true">—<small>OF 10</small></div>
+          </div>
+          <button type="button" class="btn ghost clear">Clear rating</button>
+        </div>
+        <div><label for="n-impact">Notes / justification</label><textarea id="n-impact" data-save rows="4" placeholder="Why this score?"></textarea></div>
+      </div>
+
+      <div class="metric" data-key="implementation" data-name="Implementation">
+        <div>
+          <div class="mnum">Criterion 3</div>
+          <h3 id="m3-t">Implementation</h3>
+          <p class="mdesc">How well is the project executed?</p>
+          <div class="slide-row">
+            <div class="slider-col">
+              <input type="range" class="slider" id="s-implementation" min="1" max="10" step="1" value="1" data-save aria-labelledby="m3-t">
+              <div class="ticks" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
+            </div>
+            <div class="val" aria-hidden="true">—<small>OF 10</small></div>
+          </div>
+          <button type="button" class="btn ghost clear">Clear rating</button>
+        </div>
+        <div><label for="n-implementation">Notes / justification</label><textarea id="n-implementation" data-save rows="4" placeholder="Why this score?"></textarea></div>
+      </div>
+
+      <div class="metric" data-key="clarity" data-name="Clarity">
+        <div>
+          <div class="mnum">Criterion 4</div>
+          <h3 id="m4-t">Clarity</h3>
+          <p class="mdesc">How clear is the presentation and documentation?</p>
+          <div class="slide-row">
+            <div class="slider-col">
+              <input type="range" class="slider" id="s-clarity" min="1" max="10" step="1" value="1" data-save aria-labelledby="m4-t">
+              <div class="ticks" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
+            </div>
+            <div class="val" aria-hidden="true">—<small>OF 10</small></div>
+          </div>
+          <button type="button" class="btn ghost clear">Clear rating</button>
+        </div>
+        <div><label for="n-clarity">Notes / justification</label><textarea id="n-clarity" data-save rows="4" placeholder="Why this score?"></textarea></div>
+      </div>
+
+      <div class="metric" data-key="growth" data-name="Knowledge and Growth">
+        <div>
+          <div class="mnum">Criterion 5</div>
+          <h3 id="m5-t">Knowledge and Growth</h3>
+          <p class="mdesc">How much learning and growth is demonstrated?</p>
+          <div class="slide-row">
+            <div class="slider-col">
+              <input type="range" class="slider" id="s-growth" min="1" max="10" step="1" value="1" data-save aria-labelledby="m5-t">
+              <div class="ticks" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
+            </div>
+            <div class="val" aria-hidden="true">—<small>OF 10</small></div>
+          </div>
+          <button type="button" class="btn ghost clear">Clear rating</button>
+        </div>
+        <div><label for="n-growth">Notes / justification</label><textarea id="n-growth" data-save rows="4" placeholder="Why this score?"></textarea></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOTAL -->
+  <section id="total" aria-labelledby="total-h">
+    <h2 class="section-title" id="total-h">4 · Total score</h2>
+    <h2 class="big">Calculated for you</h2>
+    <p class="lede">The five criteria are weighted equally and added up. This slider moves as you score; you can't drag it.</p>
+
+    <div class="total">
+      <div class="total-top">
+        <div class="big-num" aria-hidden="true"><span id="t-num">0</span><span> / 50</span></div>
+        <div class="tstats">
+          <div>Percent<b id="t-pct">0%</b></div>
+          <div>Average<b id="t-avg">—</b></div>
+          <div>Rated<b id="t-count">0 of 5</b></div>
+        </div>
+      </div>
+      <div class="tmeter" id="t-meter" role="meter" aria-label="Total score" aria-valuemin="0" aria-valuemax="50" aria-valuenow="0" aria-valuetext="0 out of 50">
+        <div class="ttrack"></div><div class="tthumb"></div>
+      </div>
+      <div class="tticks" aria-hidden="true"><span>0</span><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span></div>
+      <p class="tstatus" id="t-status" aria-live="polite"></p>
+
+      <div class="overall">
+        <label for="f-overall">Overall comments</label>
+        <textarea id="f-overall" data-save rows="4" placeholder="Highlights, concerns, anything to share with the organizers."></textarea>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn pri" id="btn-copy">Copy summary</button>
+        <button type="button" class="btn" id="btn-print">Print / save as PDF</button>
+        <button type="button" class="btn ghost" id="btn-reset">Reset scorecard</button>
+        <span class="note" id="copy-msg" role="status" aria-live="polite"></span>
+      </div>
+    </div>
+  </section>
+
+</main>
+<footer>Made with IBM Bob <span class="screen">· Scores are not saved to any server</span></footer>
+
+<style>.sr { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }</style>
+<script>
+(function () {
+  "use strict";
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var STORE = "wvu-bobathon-judge-scorecard";
+  var MAX_TOTAL = 50;
+  var metrics = $$(".metric");
+  var rated = {};
+
+  /* header shadow + nav highlight */
+  var header = $("#top-header");
+  window.addEventListener("scroll", function () { header.classList.toggle("scrolled", window.scrollY > 4); }, { passive: true });
+  var links = $$(".nav a");
+  if ("IntersectionObserver" in window) {
+    var spy = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (e.isIntersecting) links.forEach(function (a) { a.classList.toggle("active", a.getAttribute("href") === "#" + e.target.id); });
+      });
+    }, { rootMargin: "-30% 0px -60% 0px" });
+    $$("main section").forEach(function (s) { spy.observe(s); });
+  }
+
+  /* auto-growing notes so everything prints */
+  function grow(t) { t.style.height = "auto"; t.style.height = (t.scrollHeight + 4) + "px"; }
+  $$("textarea").forEach(function (t) { t.addEventListener("input", function () { grow(t); }); });
+
+  /* persistence (sessionStorage: survives refresh, cleared when the tab closes) */
+  function save() {
+    try {
+      var fields = {};
+      $$("[data-save]").forEach(function (el) { fields[el.id] = el.type === "checkbox" ? el.checked : el.value; });
+      sessionStorage.setItem(STORE, JSON.stringify({ fields: fields, rated: rated }));
+    } catch (e) { /* storage unavailable: scorecard still works, just won't survive a refresh */ }
+  }
+  function restore() {
+    try {
+      var raw = sessionStorage.getItem(STORE);
+      if (!raw) return;
+      var d = JSON.parse(raw);
+      $$("[data-save]").forEach(function (el) {
+        if (!(el.id in d.fields)) return;
+        if (el.type === "checkbox") el.checked = !!d.fields[el.id]; else el.value = d.fields[el.id];
+      });
+      rated = d.rated || {};
+    } catch (e) { rated = {}; }
+  }
+
+  /* calculation */
+  function update() {
+    var total = 0, count = 0, missing = [];
+    metrics.forEach(function (m) {
+      var key = m.dataset.key, s = $(".slider", m), v = Number(s.value), on = !!rated[key];
+      m.classList.toggle("rated", on);
+      s.style.setProperty("--p", on ? (v - 1) / 9 : 0);
+      $(".val", m).firstChild.nodeValue = on ? String(v) : "—";
+      s.setAttribute("aria-valuetext", on ? v + " out of 10" : "Not yet rated");
+      if (on) { total += v; count++; } else { missing.push(m.dataset.name); }
+    });
+    var pct = Math.round(total / MAX_TOTAL * 100);
+    $("#t-num").textContent = total;
+    $("#t-pct").textContent = pct + "%";
+    $("#t-avg").textContent = count ? (total / count).toFixed(1) + " / 10" : "—";
+    $("#t-count").textContent = count + " of " + metrics.length;
+    $("#hdr-total").textContent = "Total " + total + " / " + MAX_TOTAL;
+    var meter = $("#t-meter");
+    meter.style.setProperty("--p", total / MAX_TOTAL);
+    meter.setAttribute("aria-valuenow", total);
+    meter.setAttribute("aria-valuetext", total + " out of " + MAX_TOTAL + (count < metrics.length ? ", incomplete" : ""));
+    var st = $("#t-status");
+    if (count === metrics.length) { st.className = "tstatus"; st.textContent = "All criteria rated. Total is final unless you change a score."; }
+    else { st.className = "tstatus warn"; st.textContent = "Incomplete: still to rate: " + missing.join(", ") + "."; }
+    return { total: total, count: count, pct: pct, missing: missing };
+  }
+  function changed() { update(); save(); }
+
+  metrics.forEach(function (m) {
+    var key = m.dataset.key, s = $(".slider", m);
+    function mark() { if (!rated[key]) { rated[key] = true; changed(); } }
+    s.addEventListener("pointerdown", mark);
+    s.addEventListener("keydown", function (e) {
+      if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "PageUp", "PageDown"].indexOf(e.key) >= 0) mark();
+    });
+    s.addEventListener("input", function () { rated[key] = true; changed(); });
+    $(".clear", m).addEventListener("click", function () { rated[key] = false; s.value = 1; changed(); s.focus(); });
+  });
+  $$("[data-save]").forEach(function (el) {
+    if (!el.classList.contains("slider")) el.addEventListener("input", save);
+    el.addEventListener("change", save);
+  });
+
+  /* summary / print / reset */
+  function summary() {
+    var r = update();
+    var L = [];
+    L.push("WVU Bobathon judge scorecard");
+    L.push("Project: " + ($("#f-project").value || "-") + "   Team: " + ($("#f-team").value || "-"));
+    L.push("Judge: " + ($("#f-judge").value || "-") + "   Date: " + ($("#f-date").value || "-"));
+    L.push("");
+    L.push("SCORES");
+    metrics.forEach(function (m) {
+      var k = m.dataset.key, note = $("textarea", m).value.trim();
+      L.push("- " + m.dataset.name + ": " + (rated[k] ? $(".slider", m).value + "/10" : "not rated") + (note ? "  | " + note.replace(/\s*\n\s*/g, " ") : ""));
+    });
+    L.push("TOTAL: " + r.total + "/" + MAX_TOTAL + " (" + r.pct + "%)" + (r.count < metrics.length ? "  [INCOMPLETE: " + r.missing.join(", ") + " not rated]" : ""));
+    var qs = $$(".q").filter(function (q) { return $("input[type=checkbox]", q).checked || $("textarea", q).value.trim(); });
+    if (qs.length) {
+      L.push(""); L.push("QUESTION NOTES");
+      qs.forEach(function (q) {
+        var n = $("textarea", q).value.trim();
+        L.push("- " + $(".qt", q).textContent + (n ? "  | " + n.replace(/\s*\n\s*/g, " ") : ""));
+      });
+    }
+    var o = $("#f-overall").value.trim();
+    if (o) { L.push(""); L.push("OVERALL COMMENTS"); L.push(o); }
+    return L.join("\n");
+  }
+  var msg = $("#copy-msg");
+  function say(t) { msg.textContent = t; setTimeout(function () { msg.textContent = ""; }, 2500); }
+  $("#btn-copy").addEventListener("click", function () {
+    var text = summary();
+    function fallback() {
+      var ta = document.createElement("textarea"); ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      var ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
+      ta.remove(); say(ok ? "Summary copied." : "Couldn't copy. Use Print instead.");
+    }
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(function () { say("Summary copied."); }, fallback);
+    else fallback();
+  });
+  $("#btn-print").addEventListener("click", function () { $$("textarea").forEach(grow); window.print(); });
+  $("#btn-reset").addEventListener("click", function () {
+    if (!window.confirm("Clear every score and note on this scorecard?")) return;
+    $$("[data-save]").forEach(function (el) {
+      if (el.type === "checkbox") el.checked = false;
+      else if (el.classList.contains("slider")) el.value = 1;
+      else el.value = "";
+    });
+    rated = {};
+    try { sessionStorage.removeItem(STORE); } catch (e) {}
+    $$("textarea").forEach(grow);
+    update(); say("Scorecard cleared.");
+  });
+
+  restore();
+  $$("textarea").forEach(grow);
+  update();
+})();
+</script>
+</body>
+</html>

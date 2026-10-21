@@ -7,3 +7,7 @@
 node_modules/
 build/
 .DS_Store
+
+# judging hub live data (may contain event scores)
+bobathon/judging/server/data.json
+bobathon/judging/server/data.json.tmp

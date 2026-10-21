@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Judging Hub · WVU Bobathon</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="sr" href="#view">Skip to content</a>
+<header class="header">
+  <div class="header-inner">
+    <div class="brand">WVU <span>●</span> Bobathon</div>
+    <nav class="nav" aria-label="Views">
+      <a href="#/judge" data-route="judge">Judge</a>
+      <a href="#/scoreboard" data-route="scoreboard">Scoreboard</a>
+      <a href="#/feedback" data-route="feedback">My team's feedback</a>
+      <a href="#/organizer" data-route="organizer">Organizer</a>
+    </nav>
+    <span class="live" id="live" role="status"><i aria-hidden="true"></i><span id="live-text">Connecting…</span></span>
+  </div>
+</header>
+
+<main class="page-wrap" id="view" tabindex="-1"></main>
+
+<footer>Made with IBM Bob · All names and scores shown in sample mode are synthetic</footer>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<noscript><p style="padding:20px">This page needs JavaScript.</p></noscript>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
