@@ -170,7 +170,7 @@ function judges(p) {
 }
 
 /* ---------- reveal & settings ---------- */
-const STEP_LABEL = ["Hidden", "Honorable mentions", "Runner-up", "Winner"];
+const STEP_LABEL = ["Hidden", "Runner-up", "Winner"];
 function reveal(p) {
   const set = ov.settings, step = set.revealStep, max = store.state.reveal.maxStep;
   const incomplete = ov.projects.filter((x) => x.status !== "Completed").length;
@@ -181,11 +181,11 @@ function reveal(p) {
       h("p", { class: "meta", style: "margin:4px 0 12px", text: "Currently: " + STEP_LABEL[step] + (step === 0 ? ". Rankings and totals are concealed from everyone on the Scoreboard tab." : ".") }),
       incomplete && step === 0 ? h("div", { class: "callout", role: "status" }, h("strong", { text: incomplete + " team" + (incomplete === 1 ? " isn't" : "s aren't") + " fully judged yet. " }), "You can still reveal, but the results use only the scores submitted so far.") : null,
       h("div", { class: "row" },
-        h("button", { class: "btn gold", type: "button", disabled: step >= max, text: step === 0 ? "Start the reveal" : step === 2 ? "Reveal the winner" : "Reveal next", onclick: () => call({ action: "next" }) }),
+        h("button", { class: "btn gold", type: "button", disabled: step >= max, text: step === 0 ? "Start the reveal" : step === 1 ? "Reveal the winner" : "Reveal next", onclick: () => call({ action: "next" }) }),
         h("button", { class: "btn", type: "button", disabled: step === 0, text: "Back one step", onclick: () => call({ action: "back" }) }),
         h("button", { class: "btn danger", type: "button", disabled: step === 0, text: "Hide scoreboard", onclick: () => call({ action: "hide" }) }),
         h("a", { class: "btn", href: "#/scoreboard", target: "_blank", rel: "noopener", style: "text-decoration:none", text: "Open public view ↗" })),
-      h("p", { class: "meta", style: "margin-top:10px", text: "Steps: 1 honorable mentions (3rd and below) → 2 runner-up → 3 winner. Open the public view on the projector; it updates live as you click." })),
+      h("p", { class: "meta", style: "margin-top:10px", text: "Steps: 1 runner-up → 2 winner. Open the public view on the projector; it updates live as you click." })),
     h("div", { class: "card white", style: "margin-top:16px" }, h("h3", { text: "Settings" }),
       h("div", { class: "stack", style: "margin-top:12px" },
         switchRow("scoringOpen", "Scoring is open", "Turn off to stop judges submitting (for example once judging ends).", set.scoringOpen, setSetting),

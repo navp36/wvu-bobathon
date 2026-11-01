@@ -2,13 +2,8 @@ import { api, store, refresh, judgeAuth, repoLink, h, clear, toast, confirmDialo
 
 const QUESTIONS = [
   "What inspired your idea/project?",
-  "How did you decide on your approach?",
   "How did you make sure your solution is usable for the target audience?",
-  "What did you learn during your project (technical/nontechnical)?",
   "What was a challenge you faced working on this project?",
-  "How did your team handle areas where no one had prior experience?",
-  "How did you divide the work among your team?",
-  "What makes your project different from competitors or other existing solutions?",
   "If you had more time, what features would you add/improve?",
 ];
 const DESC = {

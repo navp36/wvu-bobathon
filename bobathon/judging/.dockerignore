@@ -1,0 +1,7 @@
+server/data.json
+server/data.json.*
+*.md
+JUDGE_RUBRIC.html
+deploy-code-engine.sh
+Dockerfile
+.git

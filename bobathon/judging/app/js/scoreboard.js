@@ -52,10 +52,10 @@ function render() {
     if (isNew && pl.rank === 1) setTimeout(confetti, 350);
   });
   firstPaint = false;
-  const head = h("div", {}, h("h2", { text: step >= 3 ? "And the winner is…" : step === 2 ? "Runner-up revealed" : "Honorable mentions" }),
-    h("p", { class: "lede", style: "margin:4px 0 0", text: step >= 3 ? "Congratulations to every team. Every project here shipped something real today." : "The top spots are still to come." }));
+  const head = h("div", {}, h("h2", { text: step >= 2 ? "And the winner is…" : "Runner-up revealed" }),
+    h("p", { class: "lede", style: "margin:4px 0 0", text: step >= 2 ? "Congratulations to every team. Every project here shipped something real today." : "The top spot is still to come." }));
   stage.append(h("div", { class: "stage" }, head, places.length ? list : h("p", { class: "wait", text: "No scores recorded for these places yet." }),
-    step < 3 ? h("p", { class: "wait", text: step === 1 ? "Who took 2nd place?" : "And 1st place…" }) : null));
+    step < 2 ? h("p", { class: "wait", text: "And 1st place…" }) : null));
 }
 
 function confetti() {

@@ -34,9 +34,8 @@ const MAX_TOTAL = CRITERIA.length * 10;
 const NUM_QUESTIONS = 9;
 const MAX_TEXT = 2000;
 const MAX_BODY = 64 * 1024;
-const TOP_N = 5; // how many places the reveal sequence covers
-// reveal steps: 0 hidden | 1 honorable mentions (3rd..TOP_N) | 2 runner-up | 3 winner
-const MAX_REVEAL_STEP = 3;
+// reveal steps: 0 hidden | 1 runner-up | 2 winner
+const MAX_REVEAL_STEP = 2;
 
 /* ---------------------------------------------------------------- state */
 function id(prefix) { return prefix + "_" + crypto.randomBytes(4).toString("hex"); }
@@ -196,9 +195,8 @@ function revealView() {
   const step = db.settings.revealStep;
   const list = ranked();
   const places = list.filter((x) => {
-    if (step >= 3 && x.rank === 1) return true;
-    if (step >= 2 && x.rank === 2) return true;
-    if (step >= 1 && x.rank >= 3 && x.rank <= TOP_N) return true;
+    if (step >= 2 && x.rank === 1) return true;
+    if (step >= 1 && x.rank === 2) return true;
     return false;
   }).map((x) => ({ rank: x.rank, project: publicProject(x.p), total: x.st.total, criteria: x.st.criteria }));
   return { step, maxStep: MAX_REVEAL_STEP, places, scoredTeams: list.length };
