@@ -78,6 +78,21 @@
     footer { border-top: 1px solid #e5e7eb; padding: 20px 0; text-align: center; font-size: 12px; color: #8c959f; margin-top: 48px; }
     .empty { color: #57606a; font-size: 14px; padding: 18px 0; }
     .sr { position: absolute; left: -9999px; }
+
+    /* Architecture section styles */
+    .arch-card { border: 1px solid #e5e7eb; border-radius: 6px; background: #f7f8fa; padding: 20px; margin-top: 14px; }
+    .arch-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 16px 0; }
+    @media (max-width: 860px) { .arch-grid { grid-template-columns: 1fr; } }
+    .arch-tile { background: #fff; border: 1px solid #e5e7eb; border-radius: 6px; padding: 14px; }
+    .arch-tile h4 { font-size: 13px; font-weight: 600; color: var(--accent); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .04em; }
+    .arch-tile p { font-size: 13px; color: #57606a; line-height: 1.45; }
+    .mermaid-container { background: #ffffff; border: 1px solid #c3d0e3; border-radius: 8px; padding: 24px; margin: 20px 0; overflow-x: auto; text-align: center; box-shadow: 0 2px 10px rgba(0,40,85,0.06); }
+    .mermaid { display: flex; justify-content: center; min-width: 720px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+    .mermaid svg { max-width: 100%; height: auto; font-family: inherit !important; }
+    .mermaid .node rect, .mermaid .node polygon, .mermaid .node circle { rx: 6px; ry: 6px; }
+    .source-toggle { margin-top: 10px; font-size: 13px; }
+    .source-toggle summary { cursor: pointer; color: var(--accent); font-weight: 500; }
+    .raw-code { background: #f0f1f3; border: 1px solid #e5e7eb; border-radius: 4px; padding: 12px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; text-align: left; overflow-x: auto; margin-top: 8px; line-height: 1.5; }
   </style>
 </head>
 <body>
@@ -145,6 +160,86 @@
       <li>The catalog is fictional. No real student records are used.</li>
       <li>A production version would need single sign-on, read-only scoped access, and no storage of grades or IDs outside the registrar's systems.</li>
     </ul>
+  </div>
+
+  <h2 class="section-title">System Architecture &amp; Data Flow</h2>
+  <div class="arch-card">
+    <div class="arch-grid">
+      <div class="arch-tile">
+        <h4>1 · Presentation &amp; State</h4>
+        <p>Pure client-side DOM rendering with reactive state for completed courses (<code>Set</code>) and registered section IDs (<code>Array</code>). Zero external framework dependencies.</p>
+      </div>
+      <div class="arch-tile">
+        <h4>2 · Feasibility Engine</h4>
+        <p>In-memory multi-constraint solver evaluating prerequisites, time-interval overlaps, and physical campus transit gaps (PRT/shuttle travel times).</p>
+      </div>
+      <div class="arch-tile">
+        <h4>3 · Production Target</h4>
+        <p>Architected for frictionless evolution to campus SSO (Shibboleth/SAML), Banner SIS APIs for real-time seat polling, and Degree Works audit integration.</p>
+      </div>
+    </div>
+
+    <div class="mermaid-container">
+      <pre class="mermaid">
+graph TB
+  subgraph Client["<b>1 · CLIENT BROWSER (Pure In-Memory Single-Page App)</b>"]
+    direction TB
+    UI["<b>User Interface Layer</b><br/>• Interactive Completed Course Chips<br/>• Catalog Search, Campus & Seat Filters<br/>• Real-time Weekly Schedule Timetable"]
+    State["<b>In-Memory State Store</b><br/>• completed (Set of Course Codes)<br/>• picked (Array of Selected Section IDs)<br/>• activeFilter criteria"]
+    Solver["<b>⚡ Multi-Constraint Feasibility Engine</b><br/>• Prerequisite Rule Validator<br/>• Same-Day Time Interval Collision Solver<br/>• Evansdale ↔ Downtown ↔ Health Sci Transit Gap Check"]
+  end
+
+  subgraph DataLayer["<b>2 · STATIC SIMULATED DATASETS (Embedded)</b>"]
+    CoursesData[("<b>📚 COURSES Dataset</b><br/>10 Courses · 16 Sections<br/>Codes, Prereqs, Schedule, Seats, Rooms")]
+    TravelData[("<b>🚌 TRAVEL Transit Matrix</b><br/>Evansdale ↔ Downtown: 25 min<br/>Downtown ↔ Health Sci: 20 min<br/>Evansdale ↔ Health Sci: 30 min")]
+  end
+
+  subgraph Enterprise["<b>3 · PRODUCTION ENTERPRISE INTEGRATION (Roadmap)</b>"]
+    SSO["<b>Campus SSO / SAML</b><br/>Institutional Student Identity"]
+    SIS["<b>Banner SIS API</b><br/>Live Seat Inventory & Registration"]
+    Audit["<b>Degree Works API</b><br/>Verified Student Transcripts"]
+    Transit["<b>PRT & Shuttle API</b><br/>Real-Time Transit Delays"]
+  end
+
+  UI -->|"User toggles courses & sections"| State
+  CoursesData -->|"Loads catalog & section metadata"| UI
+  State -->|"Supplies active selections"| Solver
+  CoursesData -.->|"Prerequisite prerequisites"| Solver
+  TravelData -.->|"Campus transit thresholds"| Solver
+  Solver -->|"Renders conflict alerts & visual warnings"| UI
+
+  SSO -.->|"OAuth 2.0 Bearer Token"| Audit
+  Audit -.->|"Auto-fills completed history"| State
+  SIS -.->|"Live seat counts"| CoursesData
+  Transit -.->|"Live delay adjustments"| TravelData
+
+  classDef clientUI fill:#eef4fc,stroke:#002855,stroke-width:2.5px,color:#002855,font-size:13px;
+  classDef clientState fill:#e6ecf5,stroke:#002855,stroke-width:2.5px,color:#002855,font-size:13px;
+  classDef solver fill:#fffbeb,stroke:#d97706,stroke-width:3px,color:#78350f,font-size:13.5px;
+  classDef dataStore fill:#f8fafc,stroke:#334155,stroke-width:2.5px,color:#0f172a,font-size:13px;
+  classDef enterprise fill:#fbf7ff,stroke:#7c3aed,stroke-width:2px,stroke-dasharray: 5 5,color:#4c1d95,font-size:13px;
+
+  class UI clientUI;
+  class State clientState;
+  class Solver solver;
+  class CoursesData,TravelData dataStore;
+  class SSO,SIS,Audit,Transit enterprise;
+      </pre>
+    </div>
+
+    <details class="source-toggle">
+      <summary>View Architecture Specification &amp; Mermaid Code</summary>
+      <pre class="raw-code">
+# Smart Class Registration Architecture Summary
+- Pattern: Ephemeral Client-Side Reactive Single-Page Application (SPA)
+- Rendering: Vanilla JS with DOM replacement (replaceChildren)
+- Constraints Checked:
+  1. Prerequisite verification against selected completed courses
+  2. Same-day interval collision detection: max(start_A, start_B) &lt; min(end_A, end_B)
+  3. Inter-campus transit gap check: start_second - end_first &gt;= TRAVEL[campus_A][campus_B]
+- Data Privacy: Zero persistence (no localStorage, no cookies, no tracking)
+      </pre>
+    </details>
   </div>
 </div>
 <footer>Made with IBM Bob · All data is synthetic</footer>
@@ -319,6 +414,31 @@ function renderSchedule() {
 function renderAll() { renderCatalog(); renderSchedule(); }
 $("clear").addEventListener("click", () => { picked = []; renderAll(); });
 renderAll();
+</script>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    themeVariables: {
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+      fontSize: '13.5px',
+      primaryColor: '#eef4fc',
+      primaryTextColor: '#002855',
+      primaryBorderColor: '#002855',
+      lineColor: '#002855',
+      secondaryColor: '#fffbeb',
+      tertiaryColor: '#f8fafc',
+      clusterBkg: '#f0f4fa',
+      clusterBorder: '#002855',
+      edgeLabelBackground: '#ffffff'
+    },
+    flowchart: {
+      curve: 'basis',
+      padding: 16,
+      htmlLabels: true
+    }
+  });
 </script>
 </body>
 </html>
